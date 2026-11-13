@@ -272,6 +272,7 @@
 </div>
 
 <script>
+<script>
   // ---------- ДАННЫЕ МЕНЮ ----------
   const menu = [
     { day: "Понедельник", meals: {
@@ -518,7 +519,45 @@
     recipesEl.appendChild(card);
   });
 
-  // ---------- ЛОГИКА ----------
+  // ---------- ЛОГИКА С СОХРАНЕНИЕМ (LOCALSTORAGE) ----------
+
+  // Ключи для хранения в памяти телефона
+  const STORAGE_KEY_SHOPS = 'menu_shops_state';
+  const STORAGE_KEY_MEALS = 'menu_meals_state';
+  const STORAGE_KEY_TAB = 'menu_active_tab';
+
+  // Функция загрузки сохранённых галочек
+  function loadState() {
+    const savedShops = JSON.parse(localStorage.getItem(STORAGE_KEY_SHOPS) || '{}');
+    const savedMeals = JSON.parse(localStorage.getItem(STORAGE_KEY_MEALS) || '{}');
+
+    // Восстанавливаем покупки
+    Object.keys(savedShops).forEach(id => {
+      const cb = document.getElementById(id);
+      if (cb) {
+        cb.checked = savedShops[id];
+        if (cb.checked) document.getElementById('wrap-' + id).classList.add('done');
+      }
+    });
+
+    // Восстанавливаем блюда
+    Object.keys(savedMeals).forEach(id => {
+      const cb = document.getElementById(id);
+      if (cb) {
+        cb.checked = savedMeals[id];
+        if (cb.checked) document.getElementById('wrap-' + id).classList.add('done');
+      }
+    });
+  }
+
+  // Функция сохранения состояния
+  function saveState(type, id, isChecked) {
+    const key = type === 'shop' ? STORAGE_KEY_SHOPS : STORAGE_KEY_MEALS;
+    const data = JSON.parse(localStorage.getItem(key) || '{}');
+    data[id] = isChecked;
+    localStorage.setItem(key, JSON.stringify(data));
+  }
+
   const statBought = document.getElementById('statBought');
   const statMeals = document.getElementById('statMeals');
   const shopProgressText = document.getElementById('shopProgressText');
@@ -533,15 +572,24 @@
     shopProgressFill.style.width = (totalShopItems ? (bought/totalShopItems*100) : 0) + '%';
   }
 
+  // Обработчик кликов (сохраняет при каждом изменении)
   document.addEventListener('change', e => {
     if (e.target.matches('input[type="checkbox"]')) {
       const wrap = document.getElementById('wrap-' + e.target.id);
       if (wrap) wrap.classList.toggle('done', e.target.checked);
+      
+      // Сохраняем именно этот чекбокс
+      saveState(e.target.dataset.type, e.target.id, e.target.checked);
+      
       updateStats();
     }
   });
 
+  // Сброс покупок (очищает и память)
   document.getElementById('resetShop').addEventListener('click', () => {
+    if(!confirm('Сбросить все купленные продукты?')) return;
+    
+    localStorage.removeItem(STORAGE_KEY_SHOPS); // Стираем память о покупках
     document.querySelectorAll('input[data-type="shop"]').forEach(cb => {
       cb.checked = false;
       document.getElementById('wrap-' + cb.id).classList.remove('done');
@@ -549,15 +597,25 @@
     updateStats();
   });
 
-  // ---------- ТАБЫ ----------
+  // ---------- ТАБЫ (с сохранением активной вкладки) ----------
   document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
       tab.classList.add('active');
       document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+      
+      // Запоминаем, какая вкладка открыта
+      localStorage.setItem(STORAGE_KEY_TAB, tab.dataset.panel);
     });
   });
+
+  // ---------- ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ ----------
+  // Восстанавливаем галочки
+  loadState(); 
+  // Восстанавливаем активную вкладку (или открываем Меню по умолчанию)
+  const savedTab = localStorage.getItem(STORAGE_KEY_TAB) || 'menu';
+  document.querySelector(`.tab[data-panel="${savedTab}"]`).click();
 
   updateStats();
 </script>
