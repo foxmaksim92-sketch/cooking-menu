@@ -614,7 +614,8 @@
   loadState(); 
   // Восстанавливаем активную вкладку (или открываем Меню по умолчанию)
   const savedTab = localStorage.getItem(STORAGE_KEY_TAB) || 'menu';
-  document.querySelector(`.tab[data-panel="${savedTab}"]`).click();
+  const tabToClick = document.querySelector(`.tab[data-panel="${savedTab}"]`);
+  if (tabToClick) tabToClick.click();
 
   updateStats();
 </script>
