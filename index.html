@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#4a90d9">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Меню и Рецепты</title>
+<title>Конструктор меню и рецепты</title>
 <link rel="manifest" href="manifest.json">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -16,6 +16,7 @@
     color: #1a2b3c;
     padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)) 16px;
     line-height: 1.5;
+    overscroll-behavior-y: none;
   }
   .container { max-width: 800px; margin: 0 auto; }
 
@@ -29,6 +30,22 @@
   }
   header h1 { font-size: 1.4rem; margin-bottom: 4px; }
   header p { opacity: 0.9; font-size: 0.85rem; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .stat-card .num { font-size: 1.4rem; font-weight: 700; color: #4a90d9; }
+  .stat-card .label { font-size: 0.75rem; color: #6b7c8f; }
 
   .tabs {
     display: flex;
@@ -69,7 +86,7 @@
     grid-template-columns: 1fr;
     gap: 8px;
   }
-  .builder-row h4 { color: #4a90d9; font-size: 1rem; margin-bottom: 4px; }
+  .builder-row h4 { color: #4a90d9; font-size: 1rem; margin-bottom: 4px; border-bottom: 1px solid #eef2f6; padding-bottom: 4px; }
   .builder-row select {
     width: 100%;
     padding: 10px;
@@ -80,7 +97,7 @@
     color: #1a2b3c;
     outline: none;
   }
-  .builder-row label { font-size: 0.8rem; color: #6b7c8f; font-weight: 600; margin-bottom: -4px; display: block; }
+  .builder-row label { font-size: 0.8rem; color: #6b7c8f; font-weight: 600; margin-bottom: 4px; display: block; }
 
   /* Меню */
   .days { display: grid; grid-template-columns: 1fr; gap: 12px; }
@@ -91,10 +108,13 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     border-left: 4px solid #4a90d9;
   }
-  .day-card h3 { font-size: 1rem; margin-bottom: 10px; color: #4a90d9; border-bottom: 1px solid #eef2f6; padding-bottom: 6px; }
-  .meal-item { margin-bottom: 8px; font-size: 0.95rem; }
-  .meal-item b { color: #6b7c8f; font-size: 0.85rem; display: block; }
-  .meal-item span { font-weight: 500; }
+  .day-card h3 { font-size: 1rem; margin-bottom: 12px; color: #4a90d9; border-bottom: 1px solid #eef2f6; padding-bottom: 6px; }
+  .meal { margin-bottom: 10px; font-size: 0.95rem; display: flex; align-items: flex-start; }
+  .meal b { color: #1a2b3c; display: block; margin-bottom: 2px; font-size: 0.85rem; color: #6b7c8f;}
+  .meal .dish-text { flex: 1; font-weight: 500; }
+  .meal.done { text-decoration: line-through; opacity: 0.45; }
+  .meal input { margin-right: 12px; margin-top: 4px; cursor: pointer; flex-shrink: 0; width: 20px; height: 20px; }
+  .meal label { cursor: pointer; display: flex; flex-direction: column; }
 
   /* Покупки */
   .shop-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
@@ -105,25 +125,27 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
   .shop-cat h3 { font-size: 0.95rem; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #eef2f6; color: #4a90d9; }
-  .shop-item { display: flex; align-items: flex-start; font-size: 0.95rem; padding: 6px 0; }
+  .shop-item { display: flex; align-items: flex-start; font-size: 0.95rem; padding: 8px 0; }
   .shop-item input { margin-right: 12px; margin-top: 2px; cursor: pointer; width: 20px; height: 20px; flex-shrink: 0; }
   .shop-item.done label { text-decoration: line-through; opacity: 0.45; }
-  .shop-item label { cursor: pointer; flex: 1; display: flex; justify-content: space-between; }
-  .shop-item .qty { color: #8a9bb0; font-size: 0.8rem; margin-left: 8px; }
+  .shop-item label { cursor: pointer; flex: 1; display: flex; justify-content: space-between; align-items: flex-start; }
+  .shop-item .qty { color: #8a9bb0; font-size: 0.8rem; margin-left: 8px; text-align: right; flex-shrink: 0; max-width: 45%; }
+  .shop-item .name-text { flex: 1; }
 
   .progress-wrap { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
   .progress-bar { height: 10px; background: #eef2f6; border-radius: 6px; overflow: hidden; margin-top: 8px; }
   .progress-fill { height: 100%; background: linear-gradient(90deg, #4a90d9, #6ab04c); width: 0%; transition: width 0.3s; }
   
   .action-btn {
-    background: #fff; border: 1px solid #d6dee6; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: #6b7c8f; width: 100%; margin-top: 10px; font-weight: 600;
+    background: #fff; border: 1px solid #d6dee6; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: #6b7c8f; width: 100%; margin-top: 10px; font-weight: 600; transition: 0.2s;
   }
   .action-btn:hover { border-color: #4a90d9; color: #4a90d9; }
   .action-btn.danger { border-color: #ff6b6b; color: #ff6b6b; }
 
   /* Рецепты */
+  .recipes-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .recipe-card {
-    background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-top: 4px solid #6ab04c; margin-bottom: 12px;
+    background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-top: 4px solid #6ab04c;
   }
   .recipe-card h3 { font-size: 1.05rem; margin-bottom: 12px; color: #4a90d9; }
   .recipe-card .ingredients { background: #f8fafc; padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 12px; border-left: 3px solid #6ab04c; }
@@ -132,9 +154,10 @@
   .recipe-card ol li { margin-bottom: 6px; }
 
   @media (min-width: 600px) {
-    .builder-row { grid-template-columns: 1fr 1fr 1fr; align-items: end; }
-    .builder-row h4 { grid-column: 1 / -1; margin-bottom: 0; }
-    .days, .shop-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .stats { grid-template-columns: repeat(4, 1fr); }
+    .builder-row { grid-template-columns: repeat(2, 1fr); align-items: end; }
+    .builder-row h4 { grid-column: 1 / -1; }
+    .days, .shop-grid, .recipes-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
   }
 </style>
 </head>
@@ -143,8 +166,15 @@
 
   <header>
     <h1>🍲 Конструктор меню</h1>
-    <p>Выберите блюда на неделю — список покупок соберется сам</p>
+    <p>Семья из 3: 2 взрослых + ребёнок 2 года</p>
   </header>
+
+  <div class="stats">
+    <div class="stat-card"><div class="num">7</div><div class="label">дней</div></div>
+    <div class="stat-card"><div class="num">12</div><div class="label">рецептов в базе</div></div>
+    <div class="stat-card"><div class="num" id="statBought">0</div><div class="label">куплено продуктов</div></div>
+    <div class="stat-card"><div class="num" id="statMeals">0</div><div class="label">блюд приготовлено</div></div>
+  </div>
 
   <div class="tabs">
     <button class="tab active" data-panel="builder">🛠 Конструктор</button>
@@ -155,11 +185,11 @@
 
   <!-- КОНСТРУКТОР -->
   <div class="panel active" id="panel-builder">
-    <div style="margin-bottom: 16px; font-size: 0.9rem; color: #6b7c8f;">
-      Выберите блюда на каждый день. Изменить выбор можно в любой момент, список покупок обновится автоматически.
+    <div style="margin-bottom: 16px; font-size: 0.9rem; color: #6b7c8f; background:#fff; padding:12px; border-radius:8px;">
+      Выберите блюда из базы. Список покупок и вкладка «Рецепты» обновятся автоматически.
     </div>
     <div id="builder-container"></div>
-    <button class="action-btn" id="resetWeekBtn">🔄 Сбросить меню на неделю (вернуть по умолчанию)</button>
+    <button class="action-btn danger" id="resetWeekBtn">🔄 Вернуть меню по умолчанию</button>
   </div>
 
   <!-- МЕНЮ -->
@@ -171,135 +201,67 @@
   <div class="panel" id="panel-shopping">
     <div class="progress-wrap">
       <div style="display:flex;justify-content:space-between;align-items:center;">
-        <b>Прогресс покупок</b>
+        <b>Прогресс закупки</b>
         <span id="shopProgressText" style="font-size:0.9rem;color:#6b7c8f;">0 / 0</span>
       </div>
       <div class="progress-bar"><div class="progress-fill" id="shopProgressFill"></div></div>
-      <button class="action-btn" id="resetShop">Сбросить купленные продукты</button>
+      <button class="action-btn" id="resetShop">Снять все галочки с продуктов</button>
     </div>
     <div class="shop-grid" id="shopping"></div>
   </div>
 
   <!-- РЕЦЕПТЫ -->
   <div class="panel" id="panel-recipes">
-    <div id="recipes"></div>
+    <div class="recipes-grid" id="recipes"></div>
   </div>
 
 </div>
 
 <script>
-  // ---------- БАЗА ДАННЫХ РЕЦЕПТОВ ----------
+  // ---------- БАЗА РЕЦЕПТОВ ----------
   const recipeDB = [
-    {
-      id: "kotleti",
-      name: "Котлеты с пюре",
-      category: "обед",
-      ingredients: ["Фарш 600г", "Лук 1шт", "Яйцо 1шт", "Хлеб 2ломтя", "Молоко 100мл", "Картофель 800г", "Сливочное масло 30г"],
-      steps: ["Хлеб замочить в молоке.", "Смешать фарш, лук, яйцо, хлеб и соль.", "Обжарить котлеты по 3-4 мин, потушить 10 мин под крышкой.", "Картофель отварить и размять с молоком и маслом."]
-    },
-    {
-      id: "tefteli",
-      name: "Тефтели с рисом",
-      category: "обед",
-      ingredients: ["Фарш 600г", "Рис 100г", "Лук 1шт", "Яйцо 1шт", "Томатная паста 2ст.л", "Сметана 3ст.л"],
-      steps: ["Рис отварить до полуготовности.", "Смешать фарш, рис, лук, яйцо.", "Сформировать шарики и обжарить.", "Залить соусом (паста+сметана+вода) и тушить 25 мин."]
-    },
-    {
-      id: "gulyash",
-      name: "Гуляш с гречкой",
-      category: "обед",
-      ingredients: ["Говядина 700г", "Лук 1шт", "Морковь 1шт", "Томатная паста 2ст.л", "Мука 1ст.л", "Сметана 2ст.л", "Гречка 250г"],
-      steps: ["Мясо обжарить до румяности.", "Добавить лук и морковь.", "Всыпать муку, добавить пасту и воду. Тушить 45 мин.", "Гречку отварить отдельно."]
-    },
-    {
-      id: "pasta_flotski",
-      name: "Макароны по-флотски",
-      category: "обед",
-      ingredients: ["Макароны 400г", "Фарш 500г", "Лук 1шт"],
-      steps: ["Отварить макароны.", "Обжарить фарш с луком.", "Смешать и потушить 5 минут."]
-    },
-    {
-      id: "riba",
-      name: "Запечённая рыба",
-      category: "ужин",
-      ingredients: ["Рыба 700г", "Картофель 800г", "Лук 1шт", "Морковь 1шт", "Сметана 3ст.л"],
-      steps: ["Картофель нарезать дольками и запекать 20 мин при 200C.", "Рыбу смазать сметаной, положить лук и морковь сверху.", "Запекать еще 20 минут."]
-    },
-    {
-      id: "kurica_tushenaya",
-      name: "Тушёная курица с картофелем",
-      category: "ужин",
-      ingredients: ["Курица 700г", "Картофель 500г", "Лук 1шт", "Морковь 1шт", "Томатная паста 1ст.л"],
-      steps: ["Курицу обжарить.", "Добавить лук и морковь.", "Положить картофель, пасту и воду. Тушить 30-40 мин."]
-    },
-    {
-      id: "shangi",
-      name: "Шаньги с картофелем",
-      category: "обед",
-      ingredients: ["Мука 500г", "Молоко 250мл", "Дрожжи 7г", "Сахар 1ст.л", "Яйцо 1шт", "Масло 50г", "Картофель 800г", "Сметана 3ст.л"],
-      steps: ["Замесить дрожжевое тесто, дать подойти.", "Сделать пюре.", "Раскатать лепешки, выложить пюре.", "Выпекать при 200C 15-20 мин."]
-    },
-    {
-      id: "kotlety_grachka",
-      name: "Котлеты с гречкой",
-      category: "ужин",
-      ingredients: ["Фарш 500г", "Лук 1шт", "Яйцо 1шт", "Гречка 200г"],
-      steps: ["Сделать фарш, сформировать котлеты.", "Обжарить и потушить.", "Отварить гречку."]
-    },
-    {
-      id: "omlet",
-      name: "Омлет с сыром",
-      category: "завтрак",
-      ingredients: ["Яйца 3шт", "Молоко 100мл", "Сыр 50г"],
-      steps: ["Взбить яйца с молоком.", "Вылить на сковороду, посыпать сыром.", "Готовить под крышкой 5 мин."]
-    },
-    {
-      id: "syrniki",
-      name: "Сырники",
-      category: "завтрак",
-      ingredients: ["Творог 400г", "Яйцо 1шт", "Мука 3ст.л", "Сахар 1ст.л"],
-      steps: ["Смешать творог, яйцо, муку, сахар.", "Сформировать сырники.", "Обжарить или запечь."]
-    },
-    {
-      id: "ovsyanaya",
-      name: "Овсяная каша",
-      category: "завтрак",
-      ingredients: ["Овсянка 200г", "Молоко 500мл", "Банан 1шт"],
-      steps: ["Сварить овсянку на молоке.", "Добавить нарезанный банан."]
-    },
-    {
-      id: "frukti",
-      name: "Фрукты / Творог",
-      category: "перекус",
-      ingredients: ["Яблоки 1кг", "Бананы 1кг", "Творог 500г"],
-      steps: ["Просто нарезать и подать."]
-    }
+    // ЗАВТРАКИ
+    { id: "ovsyanaya", name: "Овсяная каша с бананом", category: "завтрак", ingredients: ["Овсянка 200г", "Молоко 500мл", "Банан 1шт"], steps: ["Сварить овсянку на молоке.", "Добавить нарезанный банан."] },
+    { id: "omlet", name: "Омлет с сыром", category: "завтрак", ingredients: ["Яйца 3шт", "Молоко 100мл", "Сыр 50г"], steps: ["Взбить яйца с молоком.", "Вылить на сковороду, посыпать сыром.", "Готовить под крышкой 5 мин."] },
+    { id: "syrniki", name: "Сырники", category: "завтрак", ingredients: ["Творог 400г", "Яйцо 1шт", "Мука 3ст.л", "Сахар 1ст.л"], steps: ["Смешать ингредиенты.", "Сформировать сырники.", "Обжарить или запечь."] },
+    
+    // ОБЕДЫ / УЖИНЫ
+    { id: "kotleti", name: "Котлеты с пюре", category: "обед", ingredients: ["Фарш 600г", "Лук 1шт", "Яйцо 1шт", "Хлеб 2ломтя", "Молоко 100мл", "Картофель 800г", "Сливочное масло 30г"], steps: ["Хлеб замочить в молоке.", "Смешать фарш, лук, яйцо, хлеб.", "Обжарить, потушить 10 мин.", "Картофель отварить и размять."] },
+    { id: "tefteli", name: "Тефтели с рисом", category: "обед", ingredients: ["Фарш 600г", "Рис 100г", "Лук 1шт", "Яйцо 1шт", "Томатная паста 2ст.л", "Сметана 3ст.л"], steps: ["Рис отварить до полуготовности.", "Смешать с фаршем.", "Залить соусом и тушить 25 мин."] },
+    { id: "gulyash", name: "Гуляш с гречкой", category: "обед", ingredients: ["Говядина 700г", "Лук 1шт", "Морковь 1шт", "Томатная паста 2ст.л", "Мука 1ст.л", "Сметана 2ст.л", "Гречка 250г"], steps: ["Мясо обжарить.", "Добавить лук, морковь, пасту, воду. Тушить 45 мин.", "Гречку отварить."] },
+    { id: "pasta_flotski", name: "Макароны по-флотски", category: "обед", ingredients: ["Макароны 400г", "Фарш 500г", "Лук 1шт"], steps: ["Отварить макароны.", "Обжарить фарш с луком.", "Смешать."] },
+    { id: "riba", name: "Запечённая рыба с картофелем", category: "ужин", ingredients: ["Рыба 700г", "Картофель 800г", "Лук 1шт", "Морковь 1шт", "Сметана 3ст.л"], steps: ["Картофель запекать 20 мин при 200C.", "Рыбу смазать сметаной, добавить овощи.", "Запекать еще 20 мин."] },
+    { id: "kurica_tushenaya", name: "Тушёная курица с картофелем", category: "ужин", ingredients: ["Курица 700г", "Картофель 500г", "Лук 1шт", "Морковь 1шт", "Томатная паста 1ст.л"], steps: ["Курицу обжарить.", "Добавить овощи.", "Тушить 30-40 мин."] },
+    { id: "shangi", name: "Шаньги с картофелем", category: "обед", ingredients: ["Мука 500г", "Молоко 250мл", "Дрожжи 7г", "Сахар 1ст.л", "Яйцо 1шт", "Масло 50г", "Картофель 800г", "Сметана 3ст.л"], steps: ["Замесить тесто.", "Сделать пюре.", "Раскатать, выложить пюре.", "Выпекать при 200C 15-20 мин."] },
+    { id: "kotlety_grachka", name: "Котлеты с гречкой", category: "ужин", ingredients: ["Фарш 500г", "Лук 1шт", "Яйцо 1шт", "Гречка 200г"], steps: ["Сделать фарш.", "Обжарить.", "Отварить гречку."] },
+    
+    // ПЕРЕКУСЫ
+    { id: "frukti", name: "Фрукты и творог", category: "перекус", ingredients: ["Яблоки 1кг", "Бананы 1кг", "Творог 500г", "Кефир 1л"], steps: ["Нарезать и подать."] }
   ];
 
-  // Меню по умолчанию (ID блюд)
   const defaultWeek = {
     "Понедельник": { "Завтрак": "ovsyanaya", "Обед": "kotleti", "Ужин": "gulyash", "Перекус": "frukti" },
     "Вторник": { "Завтрак": "omlet", "Обед": "tefteli", "Ужин": "riba", "Перекус": "frukti" },
     "Среда": { "Завтрак": "syrniki", "Обед": "pasta_flotski", "Ужин": "kurica_tushenaya", "Перекус": "frukti" },
-    "Четверг": { "Завтрак": "ovsyanaya", "Обед": "kotleti", "Ужин": "kotleti_grachka", "Перекус": "frukti" },
+    "Четверг": { "Завтрак": "ovsyanaya", "Обед": "kotleti", "Ужин": "kotlety_grachka", "Перекус": "frukti" },
     "Пятница": { "Завтрак": "omlet", "Обед": "riba", "Ужин": "tefteli", "Перекус": "frukti" },
     "Суббота": { "Завтрак": "syrniki", "Обед": "shangi", "Ужин": "pasta_flotski", "Перекус": "frukti" },
-    "Воскресенье": { "Завтрак": "ovsyanaya", "Обед": "kurica_tushenaya", "Ужин": "kotleti_grachka", "Перекус": "frukti" }
+    "Воскресенье": { "Завтрак": "ovsyanaya", "Обед": "kurica_tushenaya", "Ужин": "kotlety_grachka", "Перекус": "frukti" }
   };
 
   const daysOfWeek = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
   const mealTypes = ["Завтрак", "Обед", "Ужин", "Перекус"];
 
-  // Хранилище
+  // Загрузка состояния
   let currentWeek = JSON.parse(localStorage.getItem('app_week_menu')) || JSON.parse(JSON.stringify(defaultWeek));
   let shopState = JSON.parse(localStorage.getItem('app_shops')) || {};
+  let mealState = JSON.parse(localStorage.getItem('app_meals')) || {};
 
-  // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
   function getRecipeById(id) {
     return recipeDB.find(r => r.id === id) || { name: "Не выбрано", ingredients: [], steps: [] };
   }
 
-  // ---------- РЕНДЕР КОНСТРУКТОРА ----------
+  // ---------- КОНСТРУКТОР ----------
   function renderBuilder() {
     const container = document.getElementById('builder-container');
     container.innerHTML = '';
@@ -311,7 +273,6 @@
       
       mealTypes.forEach(meal => {
         const selectedId = currentWeek[day][meal];
-        // Фильтруем рецепты по категории (или показываем все, если перекус)
         let options = recipeDB;
         if (meal === 'Завтрак') options = recipeDB.filter(r => r.category === 'завтрак');
         else if (meal === 'Обед') options = recipeDB.filter(r => r.category === 'обед' || r.category === 'ужин');
@@ -330,7 +291,6 @@
       container.appendChild(row);
     });
 
-    // Обработчик изменения селектов
     container.querySelectorAll('select').forEach(sel => {
       sel.addEventListener('change', (e) => {
         const day = e.target.dataset.day;
@@ -341,68 +301,74 @@
     });
   }
 
-  // ---------- РЕНДЕР МЕНЮ ----------
+  // ---------- МЕНЮ (С ЧЕКБОКСАМИ) ----------
   function renderMenu() {
     const daysEl = document.getElementById('days');
     daysEl.innerHTML = '';
     
-    daysOfWeek.forEach(day => {
+    daysOfWeek.forEach((day, di) => {
       const card = document.createElement('div');
       card.className = 'day-card';
       let html = `<h3>${day}</h3>`;
       
-      mealTypes.forEach(meal => {
+      mealTypes.forEach((meal, mi) => {
         const recipeId = currentWeek[day][meal];
         const recipe = getRecipeById(recipeId);
-        html += `<div class="meal-item">
-          <b>${meal}</b>
-          <span>${recipe.name}</span>
+        const mealKey = `meal-${di}-${mi}`;
+        
+        const isChecked = mealState[mealKey] ? 'checked' : '';
+        const doneClass = mealState[mealKey] ? 'done' : '';
+
+        html += `<div class="meal ${doneClass}" id="wrap-${mealKey}">
+          <input type="checkbox" id="${mealKey}" data-type="meal" ${isChecked}>
+          <label for="${mealKey}">
+            <b>${meal}</b> 
+            <span class="dish-text">${recipe.name}</span>
+          </label>
         </div>`;
       });
       card.innerHTML = html;
       daysEl.appendChild(card);
     });
+
+    // Обработчики чекбоксов в меню
+    daysEl.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        const id = e.target.id;
+        mealState[id] = e.target.checked;
+        localStorage.setItem('app_meals', JSON.stringify(mealState));
+        document.getElementById('wrap-' + id).classList.toggle('done', e.target.checked);
+        updateStats();
+      });
+    });
   }
 
-  // ---------- ГЕНЕРАЦИЯ СПИСКА ПОКУПОК ----------
-  function generateShoppingList() {
-    const ingMap = {}; // Название -> количество (чтобы убрать дубли)
+  // ---------- ПОКУПКИ ----------
+  function renderShoppingList() {
+    const ingMap = {}; 
 
     daysOfWeek.forEach(day => {
       mealTypes.forEach(meal => {
-        const recipeId = currentWeek[day][meal];
-        const recipe = getRecipeById(recipeId);
-        
+        const recipe = getRecipeById(currentWeek[day][meal]);
         recipe.ingredients.forEach(ing => {
-          // Простейшая очистка: "Фарш 600г" -> "Фарш"
-          // В реальном приложении тут нужен парсер, но мы сделаем группировку по первому слову
           const parts = ing.split(' ');
           const name = parts[0];
           const qty = parts.slice(1).join(' ');
-
-          if (!ingMap[name]) {
-            ingMap[name] = new Set();
-          }
+          if (!ingMap[name]) ingMap[name] = new Set();
           if (qty) ingMap[name].add(qty);
         });
       });
     });
 
-    // Сортируем по алфавиту
     const sortedNames = Object.keys(ingMap).sort();
-
     const shopEl = document.getElementById('shopping');
     shopEl.innerHTML = '';
     
-    // Просто выводим в одну колонку (можно сгруппировать по категориям, если добавить категории в БД)
     const catCard = document.createElement('div');
     catCard.className = 'shop-cat';
     catCard.innerHTML = `<h3>Список продуктов на неделю</h3>`;
     
-    let totalItems = 0;
-
     sortedNames.forEach(name => {
-      totalItems++;
       const qtys = Array.from(ingMap[name]).join(', ');
       const id = `shop-${name}`;
       const isChecked = shopState[id] ? 'checked' : '';
@@ -420,46 +386,25 @@
     });
 
     shopEl.appendChild(catCard);
+    updateStats();
     
-    // Обновляем прогресс
-    updateShoppingProgress(totalItems);
-    
-    // Навешиваем обработчики на новые чекбоксы
     shopEl.querySelectorAll('input[type="checkbox"]').forEach(cb => {
       cb.addEventListener('change', (e) => {
         const id = e.target.id;
         shopState[id] = e.target.checked;
         localStorage.setItem('app_shops', JSON.stringify(shopState));
         document.getElementById('wrap-' + id).classList.toggle('done', e.target.checked);
-        updateShoppingProgress(totalItems);
+        updateStats();
       });
     });
   }
 
-  function updateShoppingProgress(total) {
-    const bought = document.querySelectorAll('#shopping input[type="checkbox"]:checked').length;
-    document.getElementById('shopProgressText').textContent = `${bought} / ${total}`;
-    document.getElementById('shopProgressFill').style.width = (total ? (bought/total*100) : 0) + '%';
-  }
-
-  // ---------- РЕНДЕР РЕЦЕПТОВ ----------
+  // ---------- РЕЦЕПТЫ (ВСЕ) ----------
   function renderRecipes() {
     const recipesEl = document.getElementById('recipes');
     recipesEl.innerHTML = '';
     
-    // Собираем уникальные ID блюд, которые есть в текущей неделе
-    const usedIds = new Set();
-    daysOfWeek.forEach(day => {
-      mealTypes.forEach(meal => {
-        usedIds.add(currentWeek[day][meal]);
-      });
-    });
-
-    // Выводим только те рецепты, которые используются
-    usedIds.forEach(id => {
-      const recipe = getRecipeById(id);
-      if (recipe.name === "Не выбрано") return;
-
+    recipeDB.forEach(recipe => {
       const card = document.createElement('div');
       card.className = 'recipe-card';
       
@@ -477,27 +422,43 @@
     });
   }
 
-  // ---------- СОХРАНЕНИЕ И ОБЩИЙ РЕНДЕР ----------
+  // ---------- СТАТИСТИКА И СИНХРОНИЗАЦИЯ ----------
+  function updateStats() {
+    const boughtCount = document.querySelectorAll('#shopping input[type="checkbox"]:checked').length;
+    const totalShop = document.querySelectorAll('#shopping input[type="checkbox"]').length;
+    const mealsCount = document.querySelectorAll('#days input[type="checkbox"]:checked').length;
+
+    document.getElementById('statBought').textContent = boughtCount;
+    document.getElementById('statMeals').textContent = mealsCount;
+    
+    const shopProgressText = document.getElementById('shopProgressText');
+    const shopProgressFill = document.getElementById('shopProgressFill');
+    
+    if (shopProgressText && shopProgressFill) {
+      shopProgressText.textContent = `${boughtCount} / ${totalShop}`;
+      shopProgressFill.style.width = (totalShop ? (boughtCount/totalShop*100) : 0) + '%';
+    }
+  }
+
   function saveAndRenderAll() {
     localStorage.setItem('app_week_menu', JSON.stringify(currentWeek));
     renderMenu();
     renderShoppingList();
-    renderRecipes();
   }
 
   // ---------- СБРОС ----------
   document.getElementById('resetWeekBtn').addEventListener('click', () => {
-    if(!confirm('Вернуть меню по умолчанию на эту неделю?')) return;
+    if(!confirm('Вернуть стандартное меню на эту неделю?')) return;
     currentWeek = JSON.parse(JSON.stringify(defaultWeek));
     saveAndRenderAll();
-    renderBuilder(); // Перерисовываем селекты
+    renderBuilder();
   });
 
   document.getElementById('resetShop').addEventListener('click', () => {
-    if(!confirm('Снять все галочки с купленных продуктов?')) return;
+    if(!confirm('Снять все галочки с продуктов?')) return;
     shopState = {};
     localStorage.removeItem('app_shops');
-    generateShoppingList(); // Перерисовываем список
+    renderShoppingList();
   });
 
   // ---------- ТАБЫ ----------
@@ -512,8 +473,8 @@
 
   // ---------- ИНИЦИАЛИЗАЦИЯ ----------
   renderBuilder();
+  renderRecipes(); // Выводим все рецепты
   saveAndRenderAll();
-
 </script>
 </body>
 </html>
