@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#4a90d9">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Меню на неделю</title>
+<title>Меню и Рецепты</title>
 <link rel="manifest" href="manifest.json">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -16,7 +16,6 @@
     color: #1a2b3c;
     padding: calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)) 16px;
     line-height: 1.5;
-    overscroll-behavior-y: none;
   }
   .container { max-width: 800px; margin: 0 auto; }
 
@@ -30,22 +29,6 @@
   }
   header h1 { font-size: 1.4rem; margin-bottom: 4px; }
   header p { opacity: 0.9; font-size: 0.85rem; }
-
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  .stat-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 12px;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  }
-  .stat-card .num { font-size: 1.4rem; font-weight: 700; color: #4a90d9; }
-  .stat-card .label { font-size: 0.75rem; color: #6b7c8f; }
 
   .tabs {
     display: flex;
@@ -75,6 +58,30 @@
   .panel.active { display: block; animation: fadeIn 0.25s; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
+  /* Конструктор */
+  .builder-row {
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .builder-row h4 { color: #4a90d9; font-size: 1rem; margin-bottom: 4px; }
+  .builder-row select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d6dee6;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    background: #f8fafc;
+    color: #1a2b3c;
+    outline: none;
+  }
+  .builder-row label { font-size: 0.8rem; color: #6b7c8f; font-weight: 600; margin-bottom: -4px; display: block; }
+
   /* Меню */
   .days { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .day-card {
@@ -84,19 +91,10 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     border-left: 4px solid #4a90d9;
   }
-  .day-card h3 {
-    font-size: 1rem;
-    margin-bottom: 10px;
-    color: #4a90d9;
-    border-bottom: 1px solid #eef2f6;
-    padding-bottom: 6px;
-  }
-  .meal { margin-bottom: 10px; font-size: 0.95rem; display: flex; align-items: flex-start; }
-  .meal b { color: #1a2b3c; display: block; margin-bottom: 2px;}
-  .meal .dish-text { flex: 1; }
-  .meal.done { text-decoration: line-through; opacity: 0.45; }
-  .meal input { margin-right: 12px; margin-top: 4px; cursor: pointer; flex-shrink: 0; width: 20px; height: 20px; }
-  .meal label { cursor: pointer; display: flex; flex-direction: column; }
+  .day-card h3 { font-size: 1rem; margin-bottom: 10px; color: #4a90d9; border-bottom: 1px solid #eef2f6; padding-bottom: 6px; }
+  .meal-item { margin-bottom: 8px; font-size: 0.95rem; }
+  .meal-item b { color: #6b7c8f; font-size: 0.85rem; display: block; }
+  .meal-item span { font-weight: 500; }
 
   /* Покупки */
   .shop-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
@@ -106,82 +104,37 @@
     padding: 16px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   }
-  .shop-cat h3 {
-    font-size: 0.95rem;
-    margin-bottom: 10px;
-    padding-bottom: 6px;
-    border-bottom: 2px solid #eef2f6;
-    color: #4a90d9;
-  }
-  .shop-item { display: flex; align-items: flex-start; font-size: 0.95rem; padding: 8px 0; }
+  .shop-cat h3 { font-size: 0.95rem; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #eef2f6; color: #4a90d9; }
+  .shop-item { display: flex; align-items: flex-start; font-size: 0.95rem; padding: 6px 0; }
   .shop-item input { margin-right: 12px; margin-top: 2px; cursor: pointer; width: 20px; height: 20px; flex-shrink: 0; }
   .shop-item.done label { text-decoration: line-through; opacity: 0.45; }
-  .shop-item label { cursor: pointer; flex: 1; display: flex; justify-content: space-between; align-items: flex-start; }
-  .shop-item .qty { color: #8a9bb0; font-size: 0.8rem; margin-left: 8px; text-align: right; flex-shrink: 0; max-width: 45%; }
-  .shop-item .name-text { flex: 1; }
+  .shop-item label { cursor: pointer; flex: 1; display: flex; justify-content: space-between; }
+  .shop-item .qty { color: #8a9bb0; font-size: 0.8rem; margin-left: 8px; }
 
-  .progress-wrap {
-    background: #fff;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  }
+  .progress-wrap { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
   .progress-bar { height: 10px; background: #eef2f6; border-radius: 6px; overflow: hidden; margin-top: 8px; }
   .progress-fill { height: 100%; background: linear-gradient(90deg, #4a90d9, #6ab04c); width: 0%; transition: width 0.3s; }
-  .reset-btn {
-    background: #fff;
-    border: 1px solid #d6dee6;
-    padding: 10px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    color: #6b7c8f;
-    margin-top: 12px;
-    width: 100%;
+  
+  .action-btn {
+    background: #fff; border: 1px solid #d6dee6; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: #6b7c8f; width: 100%; margin-top: 10px; font-weight: 600;
   }
+  .action-btn:hover { border-color: #4a90d9; color: #4a90d9; }
+  .action-btn.danger { border-color: #ff6b6b; color: #ff6b6b; }
 
   /* Рецепты */
-  .recipes-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .recipe-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    border-top: 4px solid #6ab04c;
+    background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-top: 4px solid #6ab04c; margin-bottom: 12px;
   }
   .recipe-card h3 { font-size: 1.05rem; margin-bottom: 12px; color: #4a90d9; }
-  .recipe-card .ingredients {
-    background: #f8fafc;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    margin-bottom: 12px;
-    border-left: 3px solid #6ab04c;
-  }
+  .recipe-card .ingredients { background: #f8fafc; padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 12px; border-left: 3px solid #6ab04c; }
   .recipe-card .ingredients b { display: block; margin-bottom: 4px; color: #1a2b3c; }
   .recipe-card ol { padding-left: 20px; font-size: 0.9rem; }
-  .recipe-card ol li { margin-bottom: 8px; }
-  .recipe-note {
-    font-size: 0.85rem;
-    color: #6b7c8f;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px dashed #d6dee6;
-    font-style: italic;
-  }
+  .recipe-card ol li { margin-bottom: 6px; }
 
-  /* Советы */
-  .tips { display: grid; grid-template-columns: 1fr; gap: 12px; }
-  .tip-card { background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-size: 0.95rem; }
-  .tip-card h3 { font-size: 0.95rem; margin-bottom: 8px; color: #6ab04c; }
-  .tip-card ul { padding-left: 18px; }
-  .tip-card li { margin-bottom: 8px; }
-
-  /* Планшет/Десктоп */
   @media (min-width: 600px) {
-    .stats { grid-template-columns: repeat(4, 1fr); }
-    .days, .shop-grid, .recipes-grid, .tips { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .builder-row { grid-template-columns: 1fr 1fr 1fr; align-items: end; }
+    .builder-row h4 { grid-column: 1 / -1; margin-bottom: 0; }
+    .days, .shop-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
   }
 </style>
 </head>
@@ -189,26 +142,28 @@
 <div class="container">
 
   <header>
-    <h1>🍲 Домашнее меню на неделю</h1>
-    <p>Семья из 3: 2 взрослых + ребёнок 2 года · без капусты и перца</p>
+    <h1>🍲 Конструктор меню</h1>
+    <p>Выберите блюда на неделю — список покупок соберется сам</p>
   </header>
 
-  <div class="stats">
-    <div class="stat-card"><div class="num">7</div><div class="label">дней</div></div>
-    <div class="stat-card"><div class="num">21</div><div class="label">блюд и перекусов</div></div>
-    <div class="stat-card"><div class="num" id="statBought">0</div><div class="label">куплено позиций</div></div>
-    <div class="stat-card"><div class="num" id="statMeals">0</div><div class="label">блюд отмечено</div></div>
-  </div>
-
   <div class="tabs">
-    <button class="tab active" data-panel="menu">📅 Меню</button>
+    <button class="tab active" data-panel="builder">🛠 Конструктор</button>
+    <button class="tab" data-panel="menu">📅 Меню</button>
     <button class="tab" data-panel="shopping">🛒 Покупки</button>
     <button class="tab" data-panel="recipes">📖 Рецепты</button>
-    <button class="tab" data-panel="tips">💡 Советы</button>
+  </div>
+
+  <!-- КОНСТРУКТОР -->
+  <div class="panel active" id="panel-builder">
+    <div style="margin-bottom: 16px; font-size: 0.9rem; color: #6b7c8f;">
+      Выберите блюда на каждый день. Изменить выбор можно в любой момент, список покупок обновится автоматически.
+    </div>
+    <div id="builder-container"></div>
+    <button class="action-btn" id="resetWeekBtn">🔄 Сбросить меню на неделю (вернуть по умолчанию)</button>
   </div>
 
   <!-- МЕНЮ -->
-  <div class="panel active" id="panel-menu">
+  <div class="panel" id="panel-menu">
     <div class="days" id="days"></div>
   </div>
 
@@ -220,352 +175,329 @@
         <span id="shopProgressText" style="font-size:0.9rem;color:#6b7c8f;">0 / 0</span>
       </div>
       <div class="progress-bar"><div class="progress-fill" id="shopProgressFill"></div></div>
-      <button class="reset-btn" id="resetShop">Сбросить отметки</button>
+      <button class="action-btn" id="resetShop">Сбросить купленные продукты</button>
     </div>
     <div class="shop-grid" id="shopping"></div>
   </div>
 
   <!-- РЕЦЕПТЫ -->
   <div class="panel" id="panel-recipes">
-    <div class="recipes-grid" id="recipes"></div>
-  </div>
-
-  <!-- СОВЕТЫ -->
-  <div class="panel" id="panel-tips">
-    <div class="tips">
-      <div class="tip-card">
-        <h3>👶 Ребёнок 2 года</h3>
-        <ul>
-          <li>Котлеты, тефтели и мясо <b>мелко нарезать</b></li>
-          <li>Сметану и специи добавлять умеренно</li>
-          <li>Рыбу тщательно освобождать от костей</li>
-          <li>Шаньги лучше давать без грубой корочки</li>
-        </ul>
-      </div>
-      <div class="tip-card">
-        <h3>🍳 Заготовки заранее</h3>
-        <ul>
-          <li>Сделать фарш сразу на котлеты и тефтели</li>
-          <li>Сварить картофель на пюре и на шаньги</li>
-          <li>Отварить рис на гарнир и для тефтелей</li>
-        </ul>
-      </div>
-      <div class="tip-card">
-        <h3>⏱ Экономия времени</h3>
-        <ul>
-          <li>Макароны по-флотски делаются за 25 минут</li>
-          <li>Гарниры с запасом — на 2 дня</li>
-          <li>Шаньги удобно печь сразу двойную порцию</li>
-        </ul>
-      </div>
-      <div class="tip-card">
-        <h3>💰 Что проверить дома</h3>
-        <ul>
-          <li>Специи, масло, мука, сахар, крупы</li>
-          <li>Для ребёнка — творог и йогурт без сахара</li>
-          <li>Рыба — без мелких костей</li>
-        </ul>
-      </div>
-    </div>
+    <div id="recipes"></div>
   </div>
 
 </div>
 
 <script>
-  // ---------- ДАННЫЕ МЕНЮ ----------
-  const menu = [
-    { day: "Понедельник", meals: {
-      "Обед": "Котлеты с картофельным пюре. Свежие овощи",
-      "Ужин": "Гуляш из говядины. Гречка", 
-      "Перекус": "Творог, банан"
-    }},
-    { day: "Вторник", meals: {
-      "Обед": "Тефтели с рисом в томатно-сметанном соусе. Свежий огурец",
-      "Ужин": "Запечённая рыба. Картофель по-деревенски",
-      "Перекус": "Яблоко, кефир"
-    }},
-    { day: "Среда", meals: {
-      "Обед": "Макароны по-флотски (с фаршем). Свежие овощи",
-      "Ужин": "Тушёная курица с картофелем и морковью",
-      "Перекус": "Йогурт, сухофрукты"
-    }},
-    { day: "Четверг", meals: {
-      "Обед": "Котлеты с картофельным пюре. Свежие овощи",
-      "Ужин": "Гуляш из говядины. Рис",
-      "Перекус": "Творожная запеканка"
-    }},
-    { day: "Пятница", meals: {
-      "Обед": "Запечённая рыба. Картофель по-деревенски",
-      "Ужин": "Тефтели с рисом в томатно-сметанном соусе",
-      "Перекус": "Банан, кефир"
-    }},
-    { day: "Суббота", meals: {
-      "Обед": "Шаньги с картофелем. Овощной салат (огурец, помидор)",
-      "Ужин": "Макароны по-флотски. Овощи",
-      "Перекус": "Фрукты"
-    }},
-    { day: "Воскресенье", meals: {
-      "Обед": "Тушёная курица с картофелем и морковью",
-      "Ужин": "Котлеты с гречкой. Свежие овощи",
-      "Перекус": "Творог с ягодами"
-    }}
-  ];
-
-  // ---------- ДАННЫЕ ПОКУПОК ----------
-  const shopping = [
-    { cat: "Мясо, рыба, яйца", items: [
-      ["Фарш смешанный или говяжий", "1,2 кг"],
-      ["Говядина для гуляша", "700–800 г"],
-      ["Курица (филе/бёдра)", "700 г"],
-      ["Белая рыба без мелких костей", "700–800 г"],
-      ["Яйца", "15–20 шт."]
-    ]},
-    { cat: "Молочные продукты", items: [
-      ["Молоко", "2 л"],
-      ["Сметана", "500 г"],
-      ["Творог", "1 кг"],
-      ["Кефир", "1–1,5 л"],
-      ["Натуральный йогурт", "4–6 упаковок"],
-      ["Сыр", "200 г (по желанию)"],
-      ["Сливочное масло", "200 г"]
-    ]},
-    { cat: "Овощи и зелень", items: [
-      ["Картофель", "4–5 кг"],
-      ["Лук репчатый", "1,5 кг"],
-      ["Морковь", "1 кг"],
-      ["Огурцы", "4–5 шт."],
-      ["Помидоры", "500 г"],
-      ["Чеснок", "1–2 головки"],
-      ["Зелёный лук", "1 пучок"],
-      ["Укроп и петрушка", "по 1 пучку"]
-    ]},
-    { cat: "Фрукты и ягоды", items: [
-      ["Яблоки", "1,5 кг"],
-      ["Бананы", "1–1,5 кг"],
-      ["Ягоды (свежие/заморож.)", "300–400 г"],
-      ["Сухофрукты", "150–200 г"]
-    ]},
-    { cat: "Крупы, макароны, хлеб", items: [
-      ["Рис", "1 кг"],
-      ["Гречка", "1 кг"],
-      ["Мука", "1 кг"],
-      ["Хлеб", "2–3 буханки"],
-      ["Макароны", "500 г"]
-    ]},
-    { cat: "Бакалея", items: [
-      ["Томатная паста", "2 банки"],
-      ["Томатный соус", "по желанию"],
-      ["Растительное масло", "0,5–1 л"],
-      ["Соль, перец, лавровый лист", "по наличию"],
-      ["Паприка", "по желанию"],
-      ["Сахар", "0,5 кг"],
-      ["Сухие дрожжи", "1–2 пакетика"],
-      ["Сода", "1 пачка"]
-    ]}
-  ];
-
-  // ---------- ДАННЫЕ РЕЦЕПТОВ ----------
-  const recipes = [
+  // ---------- БАЗА ДАННЫХ РЕЦЕПТОВ ----------
+  const recipeDB = [
     {
-      title: "Пн: Котлеты с пюре",
-      ingredients: "Фарш — 600 г, лук — 1 шт., яйцо — 1 шт., белый хлеб — 2 ломтика, молоко — 100 мл, картофель — 800 г, сливочное масло — 30 г, соль.",
-      steps: [
-        "Хлеб замочите в молоке на 5 минут.",
-        "Смешайте фарш, тёртый лук, яйцо, отжатый хлеб и немного соли.",
-        "Слепите котлеты, обжарьте по 3–4 минуты с каждой стороны.",
-        "Добавьте 100 мл воды, накройте крышкой и потушите 10 минут.",
-        "Картофель отварите 20–25 минут, разомните с горячим молоком и маслом."
-      ]
+      id: "kotleti",
+      name: "Котлеты с пюре",
+      category: "обед",
+      ingredients: ["Фарш 600г", "Лук 1шт", "Яйцо 1шт", "Хлеб 2ломтя", "Молоко 100мл", "Картофель 800г", "Сливочное масло 30г"],
+      steps: ["Хлеб замочить в молоке.", "Смешать фарш, лук, яйцо, хлеб и соль.", "Обжарить котлеты по 3-4 мин, потушить 10 мин под крышкой.", "Картофель отварить и размять с молоком и маслом."]
     },
     {
-      title: "Вт: Тефтели с рисом",
-      ingredients: "Фарш — 600 г, рис — 100 г, лук — 1 шт., яйцо — 1 шт., томатная паста — 2 ст. л., сметана — 3 ст. л., вода — 300 мл, соль.",
-      steps: [
-        "Рис отварите 8–10 минут до полуготовности и остудите.",
-        "Смешайте фарш, рис, тёртый лук, яйцо и соль. Сформируйте шарики.",
-        "Обжарьте по 2 минуты с каждой стороны или сразу выложите в сотейник.",
-        "Смешайте томатную пасту, сметану, воду и соль; залейте тефтели.",
-        "Тушите под крышкой 25–30 минут."
-      ]
+      id: "tefteli",
+      name: "Тефтели с рисом",
+      category: "обед",
+      ingredients: ["Фарш 600г", "Рис 100г", "Лук 1шт", "Яйцо 1шт", "Томатная паста 2ст.л", "Сметана 3ст.л"],
+      steps: ["Рис отварить до полуготовности.", "Смешать фарш, рис, лук, яйцо.", "Сформировать шарики и обжарить.", "Залить соусом (паста+сметана+вода) и тушить 25 мин."]
     },
     {
-      title: "Ср: Гуляш с гречкой",
-      ingredients: "Говядина — 700 г, лук — 1 шт., морковь — 1 шт., томатная паста — 2 ст. л., мука — 1 ст. л., вода — 500 мл, сметана — 2 ст. л., гречка — 250 г, соль.",
-      steps: [
-        "Мясо нарежьте небольшими кусочками и обжарьте до румяности.",
-        "Добавьте лук и морковь, готовьте 5–7 минут.",
-        "Всыпьте муку, перемешайте, добавьте томатную пасту и воду.",
-        "Тушите под крышкой 45–55 минут; в конце положите сметану.",
-        "Гречку промойте, залейте водой 1:2 и варите 15–20 минут."
-      ]
+      id: "gulyash",
+      name: "Гуляш с гречкой",
+      category: "обед",
+      ingredients: ["Говядина 700г", "Лук 1шт", "Морковь 1шт", "Томатная паста 2ст.л", "Мука 1ст.л", "Сметана 2ст.л", "Гречка 250г"],
+      steps: ["Мясо обжарить до румяности.", "Добавить лук и морковь.", "Всыпать муку, добавить пасту и воду. Тушить 45 мин.", "Гречку отварить отдельно."]
     },
     {
-      title: "Чт: Макароны по-флотски",
-      ingredients: "Макароны — 400 г, фарш — 500 г, лук — 1 шт., растительное масло, соль.",
-      steps: [
-        "Отварите макароны согласно инструкции на упаковке.",
-        "Обжарьте фарш с мелко нарезанным луком до готовности.",
-        "Соедините макароны с фаршем и потушите 5 минут."
-      ]
+      id: "pasta_flotski",
+      name: "Макароны по-флотски",
+      category: "обед",
+      ingredients: ["Макароны 400г", "Фарш 500г", "Лук 1шт"],
+      steps: ["Отварить макароны.", "Обжарить фарш с луком.", "Смешать и потушить 5 минут."]
     },
     {
-      title: "Пт: Рыба с картофелем",
-      ingredients: "Рыба без костей — 700–800 г, картофель — 800 г, лук — 1 шт., морковь — 1 шт., сметана — 3 ст. л., масло, соль.",
-      steps: [
-        "Картофель нарежьте дольками, смешайте с маслом, солью и паприкой.",
-        "Выложите на противень и запекайте 20 минут при 200 °C.",
-        "Рыбу посолите, смажьте сметаной, положите сверху лук и морковь.",
-        "Запекайте ещё 15–20 минут."
-      ]
+      id: "riba",
+      name: "Запечённая рыба",
+      category: "ужин",
+      ingredients: ["Рыба 700г", "Картофель 800г", "Лук 1шт", "Морковь 1шт", "Сметана 3ст.л"],
+      steps: ["Картофель нарезать дольками и запекать 20 мин при 200C.", "Рыбу смазать сметаной, положить лук и морковь сверху.", "Запекать еще 20 минут."]
     },
     {
-      title: "Сб: Шаньги с картофелем",
-      ingredients: "Тесто: мука — 500 г, молоко — 250 мл, дрожжи — 7 г, сахар — 1 ст. л., яйцо — 1 шт., масло — 50 г, соль. Начинка: картофель — 800 г, сметана — 3 ст. л., масло — 30 г, яйцо.",
-      steps: [
-        "В тёплом молоке разведите дрожжи и сахар, оставьте на 10–15 минут.",
-        "Добавьте яйцо, масло, соль и муку; замесите тесто. Оставьте на 40–60 минут.",
-        "Картофель отварите и сделайте пюре со сметаной и маслом.",
-        "Разделите тесто на 8–10 частей, раскатайте лепёшки с бортиком.",
-        "Выложите пюре, смажьте края яйцом.",
-        "Выпекайте при 200 °C 15–20 минут."
-      ]
+      id: "kurica_tushenaya",
+      name: "Тушёная курица с картофелем",
+      category: "ужин",
+      ingredients: ["Курица 700г", "Картофель 500г", "Лук 1шт", "Морковь 1шт", "Томатная паста 1ст.л"],
+      steps: ["Курицу обжарить.", "Добавить лук и морковь.", "Положить картофель, пасту и воду. Тушить 30-40 мин."]
     },
     {
-      title: "Вс: Тушёная курица с картофелем",
-      ingredients: "Курица — 700 г, картофель — 500 г, лук — 1 шт., морковь — 1 шт., томатная паста — 1 ст. л., вода — 300 мл, соль, лавровый лист.",
-      steps: [
-        "Курицу нарежьте и обжарьте до румяности.",
-        "Добавьте лук и морковь, готовьте 5 минут.",
-        "Положите нарезанный картофель, томатную пасту и воду.",
-        "Тушите под крышкой 30–40 минут до готовности."
-      ]
+      id: "shangi",
+      name: "Шаньги с картофелем",
+      category: "обед",
+      ingredients: ["Мука 500г", "Молоко 250мл", "Дрожжи 7г", "Сахар 1ст.л", "Яйцо 1шт", "Масло 50г", "Картофель 800г", "Сметана 3ст.л"],
+      steps: ["Замесить дрожжевое тесто, дать подойти.", "Сделать пюре.", "Раскатать лепешки, выложить пюре.", "Выпекать при 200C 15-20 мин."]
+    },
+    {
+      id: "kotlety_grachka",
+      name: "Котлеты с гречкой",
+      category: "ужин",
+      ingredients: ["Фарш 500г", "Лук 1шт", "Яйцо 1шт", "Гречка 200г"],
+      steps: ["Сделать фарш, сформировать котлеты.", "Обжарить и потушить.", "Отварить гречку."]
+    },
+    {
+      id: "omlet",
+      name: "Омлет с сыром",
+      category: "завтрак",
+      ingredients: ["Яйца 3шт", "Молоко 100мл", "Сыр 50г"],
+      steps: ["Взбить яйца с молоком.", "Вылить на сковороду, посыпать сыром.", "Готовить под крышкой 5 мин."]
+    },
+    {
+      id: "syrniki",
+      name: "Сырники",
+      category: "завтрак",
+      ingredients: ["Творог 400г", "Яйцо 1шт", "Мука 3ст.л", "Сахар 1ст.л"],
+      steps: ["Смешать творог, яйцо, муку, сахар.", "Сформировать сырники.", "Обжарить или запечь."]
+    },
+    {
+      id: "ovsyanaya",
+      name: "Овсяная каша",
+      category: "завтрак",
+      ingredients: ["Овсянка 200г", "Молоко 500мл", "Банан 1шт"],
+      steps: ["Сварить овсянку на молоке.", "Добавить нарезанный банан."]
+    },
+    {
+      id: "frukti",
+      name: "Фрукты / Творог",
+      category: "перекус",
+      ingredients: ["Яблоки 1кг", "Бананы 1кг", "Творог 500г"],
+      steps: ["Просто нарезать и подать."]
     }
   ];
+
+  // Меню по умолчанию (ID блюд)
+  const defaultWeek = {
+    "Понедельник": { "Завтрак": "ovsyanaya", "Обед": "kotleti", "Ужин": "gulyash", "Перекус": "frukti" },
+    "Вторник": { "Завтрак": "omlet", "Обед": "tefteli", "Ужин": "riba", "Перекус": "frukti" },
+    "Среда": { "Завтрак": "syrniki", "Обед": "pasta_flotski", "Ужин": "kurica_tushenaya", "Перекус": "frukti" },
+    "Четверг": { "Завтрак": "ovsyanaya", "Обед": "kotleti", "Ужин": "kotleti_grachka", "Перекус": "frukti" },
+    "Пятница": { "Завтрак": "omlet", "Обед": "riba", "Ужин": "tefteli", "Перекус": "frukti" },
+    "Суббота": { "Завтрак": "syrniki", "Обед": "shangi", "Ужин": "pasta_flotski", "Перекус": "frukti" },
+    "Воскресенье": { "Завтрак": "ovsyanaya", "Обед": "kurica_tushenaya", "Ужин": "kotleti_grachka", "Перекус": "frukti" }
+  };
+
+  const daysOfWeek = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
+  const mealTypes = ["Завтрак", "Обед", "Ужин", "Перекус"];
+
+  // Хранилище
+  let currentWeek = JSON.parse(localStorage.getItem('app_week_menu')) || JSON.parse(JSON.stringify(defaultWeek));
+  let shopState = JSON.parse(localStorage.getItem('app_shops')) || {};
+
+  // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
+  function getRecipeById(id) {
+    return recipeDB.find(r => r.id === id) || { name: "Не выбрано", ingredients: [], steps: [] };
+  }
+
+  // ---------- РЕНДЕР КОНСТРУКТОРА ----------
+  function renderBuilder() {
+    const container = document.getElementById('builder-container');
+    container.innerHTML = '';
+    
+    daysOfWeek.forEach(day => {
+      const row = document.createElement('div');
+      row.className = 'builder-row';
+      let html = `<h4>${day}</h4>`;
+      
+      mealTypes.forEach(meal => {
+        const selectedId = currentWeek[day][meal];
+        // Фильтруем рецепты по категории (или показываем все, если перекус)
+        let options = recipeDB;
+        if (meal === 'Завтрак') options = recipeDB.filter(r => r.category === 'завтрак');
+        else if (meal === 'Обед') options = recipeDB.filter(r => r.category === 'обед' || r.category === 'ужин');
+        else if (meal === 'Ужин') options = recipeDB.filter(r => r.category === 'ужин' || r.category === 'обед');
+        else if (meal === 'Перекус') options = recipeDB.filter(r => r.category === 'перекус');
+
+        let selectHtml = `<div><label>${meal}</label><select data-day="${day}" data-meal="${meal}">`;
+        options.forEach(opt => {
+          const sel = opt.id === selectedId ? 'selected' : '';
+          selectHtml += `<option value="${opt.id}" ${sel}>${opt.name}</option>`;
+        });
+        selectHtml += `</select></div>`;
+        html += selectHtml;
+      });
+      row.innerHTML = html;
+      container.appendChild(row);
+    });
+
+    // Обработчик изменения селектов
+    container.querySelectorAll('select').forEach(sel => {
+      sel.addEventListener('change', (e) => {
+        const day = e.target.dataset.day;
+        const meal = e.target.dataset.meal;
+        currentWeek[day][meal] = e.target.value;
+        saveAndRenderAll();
+      });
+    });
+  }
 
   // ---------- РЕНДЕР МЕНЮ ----------
-  const daysEl = document.getElementById('days');
-  menu.forEach((d, di) => {
-    const card = document.createElement('div');
-    card.className = 'day-card';
-    let html = `<h3>${d.day}</h3>`;
-    Object.entries(d.meals).forEach(([meal, dish], mi) => {
-      const id = `meal-${di}-${mi}`;
-      html += `<div class="meal" id="wrap-${id}">
-        <input type="checkbox" id="${id}" data-type="meal">
-        <label for="${id}"><b>${meal}</b> <span class="dish-text">${dish}</span></label>
-      </div>`;
+  function renderMenu() {
+    const daysEl = document.getElementById('days');
+    daysEl.innerHTML = '';
+    
+    daysOfWeek.forEach(day => {
+      const card = document.createElement('div');
+      card.className = 'day-card';
+      let html = `<h3>${day}</h3>`;
+      
+      mealTypes.forEach(meal => {
+        const recipeId = currentWeek[day][meal];
+        const recipe = getRecipeById(recipeId);
+        html += `<div class="meal-item">
+          <b>${meal}</b>
+          <span>${recipe.name}</span>
+        </div>`;
+      });
+      card.innerHTML = html;
+      daysEl.appendChild(card);
     });
-    card.innerHTML = html;
-    daysEl.appendChild(card);
-  });
+  }
 
-  // ---------- РЕНДЕР ПОКУПОК ----------
-  const shopEl = document.getElementById('shopping');
-  let totalShopItems = 0;
-  shopping.forEach((cat, ci) => {
-    const card = document.createElement('div');
-    card.className = 'shop-cat';
-    let html = `<h3>${cat.cat}</h3>`;
-    cat.items.forEach(([name, qty], ii) => {
-      totalShopItems++;
-      const id = `shop-${ci}-${ii}`;
-      html += `<div class="shop-item" id="wrap-${id}">
-        <input type="checkbox" id="${id}" data-type="shop">
-        <label for="${id}">
-          <span class="name-text">${name}</span>
-          <span class="qty">${qty}</span>
-        </label>
-      </div>`;
+  // ---------- ГЕНЕРАЦИЯ СПИСКА ПОКУПОК ----------
+  function generateShoppingList() {
+    const ingMap = {}; // Название -> количество (чтобы убрать дубли)
+
+    daysOfWeek.forEach(day => {
+      mealTypes.forEach(meal => {
+        const recipeId = currentWeek[day][meal];
+        const recipe = getRecipeById(recipeId);
+        
+        recipe.ingredients.forEach(ing => {
+          // Простейшая очистка: "Фарш 600г" -> "Фарш"
+          // В реальном приложении тут нужен парсер, но мы сделаем группировку по первому слову
+          const parts = ing.split(' ');
+          const name = parts[0];
+          const qty = parts.slice(1).join(' ');
+
+          if (!ingMap[name]) {
+            ingMap[name] = new Set();
+          }
+          if (qty) ingMap[name].add(qty);
+        });
+      });
     });
-    card.innerHTML = html;
-    shopEl.appendChild(card);
-  });
+
+    // Сортируем по алфавиту
+    const sortedNames = Object.keys(ingMap).sort();
+
+    const shopEl = document.getElementById('shopping');
+    shopEl.innerHTML = '';
+    
+    // Просто выводим в одну колонку (можно сгруппировать по категориям, если добавить категории в БД)
+    const catCard = document.createElement('div');
+    catCard.className = 'shop-cat';
+    catCard.innerHTML = `<h3>Список продуктов на неделю</h3>`;
+    
+    let totalItems = 0;
+
+    sortedNames.forEach(name => {
+      totalItems++;
+      const qtys = Array.from(ingMap[name]).join(', ');
+      const id = `shop-${name}`;
+      const isChecked = shopState[id] ? 'checked' : '';
+      const doneClass = shopState[id] ? 'done' : '';
+
+      catCard.innerHTML += `
+        <div class="shop-item ${doneClass}" id="wrap-${id}">
+          <input type="checkbox" id="${id}" data-type="shop" ${isChecked}>
+          <label for="${id}">
+            <span class="name-text">${name}</span>
+            <span class="qty">${qtys}</span>
+          </label>
+        </div>
+      `;
+    });
+
+    shopEl.appendChild(catCard);
+    
+    // Обновляем прогресс
+    updateShoppingProgress(totalItems);
+    
+    // Навешиваем обработчики на новые чекбоксы
+    shopEl.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', (e) => {
+        const id = e.target.id;
+        shopState[id] = e.target.checked;
+        localStorage.setItem('app_shops', JSON.stringify(shopState));
+        document.getElementById('wrap-' + id).classList.toggle('done', e.target.checked);
+        updateShoppingProgress(totalItems);
+      });
+    });
+  }
+
+  function updateShoppingProgress(total) {
+    const bought = document.querySelectorAll('#shopping input[type="checkbox"]:checked').length;
+    document.getElementById('shopProgressText').textContent = `${bought} / ${total}`;
+    document.getElementById('shopProgressFill').style.width = (total ? (bought/total*100) : 0) + '%';
+  }
 
   // ---------- РЕНДЕР РЕЦЕПТОВ ----------
-  const recipesEl = document.getElementById('recipes');
-  recipes.forEach(recipe => {
-    const card = document.createElement('div');
-    card.className = 'recipe-card';
+  function renderRecipes() {
+    const recipesEl = document.getElementById('recipes');
+    recipesEl.innerHTML = '';
     
-    let stepsHtml = recipe.steps.map(step => `<li>${step}</li>`).join('');
-    
-    card.innerHTML = `
-      <h3>${recipe.title}</h3>
-      <div class="ingredients">
-        <b>Ингредиенты:</b>
-        ${recipe.ingredients}
-      </div>
-      <ol>
-        ${stepsHtml}
-      </ol>
-    `;
-    recipesEl.appendChild(card);
-  });
-
-  // ---------- ЛОГИКА С СОХРАНЕНИЕМ (LOCALSTORAGE) ----------
-  const STORAGE_KEY_SHOPS = 'menu_shops_state';
-  const STORAGE_KEY_MEALS = 'menu_meals_state';
-  const STORAGE_KEY_TAB = 'menu_active_tab';
-
-  function loadState() {
-    const savedShops = JSON.parse(localStorage.getItem(STORAGE_KEY_SHOPS) || '{}');
-    const savedMeals = JSON.parse(localStorage.getItem(STORAGE_KEY_MEALS) || '{}');
-
-    Object.keys(savedShops).forEach(id => {
-      const cb = document.getElementById(id);
-      if (cb) {
-        cb.checked = savedShops[id];
-        if (cb.checked) document.getElementById('wrap-' + id).classList.add('done');
-      }
+    // Собираем уникальные ID блюд, которые есть в текущей неделе
+    const usedIds = new Set();
+    daysOfWeek.forEach(day => {
+      mealTypes.forEach(meal => {
+        usedIds.add(currentWeek[day][meal]);
+      });
     });
 
-    Object.keys(savedMeals).forEach(id => {
-      const cb = document.getElementById(id);
-      if (cb) {
-        cb.checked = savedMeals[id];
-        if (cb.checked) document.getElementById('wrap-' + id).classList.add('done');
-      }
+    // Выводим только те рецепты, которые используются
+    usedIds.forEach(id => {
+      const recipe = getRecipeById(id);
+      if (recipe.name === "Не выбрано") return;
+
+      const card = document.createElement('div');
+      card.className = 'recipe-card';
+      
+      let stepsHtml = recipe.steps.map(step => `<li>${step}</li>`).join('');
+      let ingHtml = recipe.ingredients.join(', ');
+      
+      card.innerHTML = `
+        <h3>${recipe.name}</h3>
+        <div class="ingredients">
+          <b>Ингредиенты:</b> ${ingHtml}
+        </div>
+        <ol>${stepsHtml}</ol>
+      `;
+      recipesEl.appendChild(card);
     });
   }
 
-  function saveState(type, id, isChecked) {
-    const key = type === 'shop' ? STORAGE_KEY_SHOPS : STORAGE_KEY_MEALS;
-    const data = JSON.parse(localStorage.getItem(key) || '{}');
-    data[id] = isChecked;
-    localStorage.setItem(key, JSON.stringify(data));
+  // ---------- СОХРАНЕНИЕ И ОБЩИЙ РЕНДЕР ----------
+  function saveAndRenderAll() {
+    localStorage.setItem('app_week_menu', JSON.stringify(currentWeek));
+    renderMenu();
+    renderShoppingList();
+    renderRecipes();
   }
 
-  const statBought = document.getElementById('statBought');
-  const statMeals = document.getElementById('statMeals');
-  const shopProgressText = document.getElementById('shopProgressText');
-  const shopProgressFill = document.getElementById('shopProgressFill');
-
-  function updateStats() {
-    const bought = document.querySelectorAll('input[data-type="shop"]:checked').length;
-    const meals = document.querySelectorAll('input[data-type="meal"]:checked').length;
-    statBought.textContent = bought;
-    statMeals.textContent = meals;
-    shopProgressText.textContent = `${bought} / ${totalShopItems}`;
-    shopProgressFill.style.width = (totalShopItems ? (bought/totalShopItems*100) : 0) + '%';
-  }
-
-  document.addEventListener('change', e => {
-    if (e.target.matches('input[type="checkbox"]')) {
-      const wrap = document.getElementById('wrap-' + e.target.id);
-      if (wrap) wrap.classList.toggle('done', e.target.checked);
-      saveState(e.target.dataset.type, e.target.id, e.target.checked);
-      updateStats();
-    }
+  // ---------- СБРОС ----------
+  document.getElementById('resetWeekBtn').addEventListener('click', () => {
+    if(!confirm('Вернуть меню по умолчанию на эту неделю?')) return;
+    currentWeek = JSON.parse(JSON.stringify(defaultWeek));
+    saveAndRenderAll();
+    renderBuilder(); // Перерисовываем селекты
   });
 
   document.getElementById('resetShop').addEventListener('click', () => {
-    if(!confirm('Сбросить все купленные продукты?')) return;
-    localStorage.removeItem(STORAGE_KEY_SHOPS);
-    document.querySelectorAll('input[data-type="shop"]').forEach(cb => {
-      cb.checked = false;
-      document.getElementById('wrap-' + cb.id).classList.remove('done');
-    });
-    updateStats();
+    if(!confirm('Снять все галочки с купленных продуктов?')) return;
+    shopState = {};
+    localStorage.removeItem('app_shops');
+    generateShoppingList(); // Перерисовываем список
   });
 
   // ---------- ТАБЫ ----------
@@ -575,16 +507,13 @@
       document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
       tab.classList.add('active');
       document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
-      localStorage.setItem(STORAGE_KEY_TAB, tab.dataset.panel);
     });
   });
 
   // ---------- ИНИЦИАЛИЗАЦИЯ ----------
-  loadState(); 
-  const savedTab = localStorage.getItem(STORAGE_KEY_TAB) || 'menu';
-  const tabToClick = document.querySelector(`.tab[data-panel="${savedTab}"]`);
-  if (tabToClick) tabToClick.click();
-  updateStats();
+  renderBuilder();
+  saveAndRenderAll();
+
 </script>
 </body>
 </html>
