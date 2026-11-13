@@ -179,7 +179,7 @@
 
   <header>
     <h1>🍲 Семейное меню</h1>
-    <p>Взрослое и детское меню · без капусты и перца</p>
+    <p>100 рецептов · Взрослое и детское меню · Без супов, капусты и перца</p>
   </header>
 
   <div class="stats">
@@ -241,24 +241,25 @@
 
 <script>
   // ---------- НАСТРОЙКИ НЕДЕЛИ ПО УМОЛЧАНИЮ ----------
+  // Используем новые ID из обновленной базы (с префиксами a_ и k_)
   const defaultWeek = {
     adult: {
-      "Понедельник": { "Обед": "kotleti", "Ужин": "gulyash", "Перекус": "frukti" },
-      "Вторник": { "Обед": "tefteli", "Ужин": "riba", "Перекус": "frukti" },
-      "Среда": { "Обед": "pasta_flotski", "Ужин": "kurica_tushenaya", "Перекус": "frukti" },
-      "Четверг": { "Обед": "kotleti", "Ужин": "kotlety_grachka", "Перекус": "frukti" },
-      "Пятница": { "Обед": "riba", "Ужин": "tefteli", "Перекус": "frukti" },
-      "Суббота": { "Обед": "shangi", "Ужин": "pasta_flotski", "Перекус": "frukti" },
-      "Воскресенье": { "Обед": "kurica_tushenaya", "Ужин": "kotlety_grachka", "Перекус": "frukti" }
+      "Понедельник": { "Обед": "a_kotleti", "Ужин": "a_gulyash", "Перекус": "a_frukti" },
+      "Вторник": { "Обед": "a_tefteli", "Ужин": "a_riba", "Перекус": "a_frukti" },
+      "Среда": { "Обед": "a_pasta_flotski", "Ужин": "a_kurica_tushenaya", "Перекус": "a_salat_ovoshchnoy" },
+      "Четверг": { "Обед": "a_kotleti", "Ужин": "a_kotlety_grachka", "Перекус": "a_yogurt" },
+      "Пятница": { "Обед": "a_plov", "Ужин": "a_tefteli", "Перекус": "a_frukti" },
+      "Суббота": { "Обед": "a_shangi", "Ужин": "a_pasta_flotski", "Перекус": "a_pechenoe_yabloko" },
+      "Воскресенье": { "Обед": "a_tushenaya_kartoshka", "Ужин": "a_ryba_duhovka", "Перекус": "a_salat_morkov" }
     },
     kid: {
-      "Понедельник": { "Обед": "kid_parovye_tefteli", "Ужин": "kid_kartofel_pure", "Перекус": "kid_frukti" },
-      "Вторник": { "Обед": "kid_sup_pure", "Ужин": "kid_kurinye_ezhiki", "Перекус": "kid_frukti" },
-      "Среда": { "Обед": "kid_frikadelki", "Ужин": "kid_omlet", "Перекус": "kid_zapekanka" },
-      "Четверг": { "Обед": "kid_ovoshnoe_ragu", "Ужин": "kid_parovye_tefteli", "Перекус": "kid_frukti" },
-      "Пятница": { "Обед": "kid_sup_pure", "Ужин": "kid_kartofel_pure", "Перекус": "kid_frukti" },
-      "Суббота": { "Обед": "kid_frikadelki", "Ужин": "kid_kurinye_ezhiki", "Перекус": "kid_zapekanka" },
-      "Воскресенье": { "Обед": "kid_ovoshnoe_ragu", "Ужин": "kid_omlet", "Перекус": "kid_frukti" }
+      "Понедельник": { "Обед": "k_parovye_tefteli", "Ужин": "k_kartofel_pure", "Перекус": "k_frukti" },
+      "Вторник": { "Обед": "k_kurinye_ezhiki", "Ужин": "k_riba_par", "Перекус": "k_frukti" },
+      "Среда": { "Обед": "k_ovoshnoe_ragu", "Ужин": "k_omlet", "Перекус": "k_zapekanka" },
+      "Четверг": { "Обед": "k_kartofel_myaso", "Ужин": "k_parovye_tefteli", "Перекус": "k_frukti" },
+      "Пятница": { "Обед": "k_ris_kurica", "Ужин": "k_kartofel_pure", "Перекус": "k_banan_kefir" },
+      "Суббота": { "Обед": "k_kotlety_kurinye", "Ужин": "k_kurinye_ezhiki", "Перекус": "k_syrniki" },
+      "Воскресенье": { "Обед": "k_ovoshnoe_ragu", "Ужин": "k_omlet", "Перекус": "k_frukti" }
     }
   };
 
@@ -266,9 +267,9 @@
   const mealTypes = ["Обед", "Ужин", "Перекус"];
 
   // Состояние
-  let currentWeek = JSON.parse(localStorage.getItem('app_week_menu_v3')) || JSON.parse(JSON.stringify(defaultWeek));
-  let shopState = JSON.parse(localStorage.getItem('app_shops_v3')) || {};
-  let mealState = JSON.parse(localStorage.getItem('app_meals_v3')) || {};
+  let currentWeek = JSON.parse(localStorage.getItem('app_week_menu_v4')) || JSON.parse(JSON.stringify(defaultWeek));
+  let shopState = JSON.parse(localStorage.getItem('app_shops_v4')) || {};
+  let mealState = JSON.parse(localStorage.getItem('app_meals_v4')) || {};
 
   function getRecipeById(id) {
     // Ищем в базе данных из recipes.js
@@ -291,6 +292,7 @@
       mealTypes.forEach(meal => {
         const selectedId = currentWeek.adult[day][meal];
         let options = recipeDB.filter(r => r.category === 'adult');
+        // Фильтрация по типу блюда (обед/ужин/перекус)
         if (meal === 'Обед') options = options.filter(r => r.type === 'обед' || r.type === 'ужин');
         else if (meal === 'Ужин') options = options.filter(r => r.type === 'ужин' || r.type === 'обед');
         else options = options.filter(r => r.type === 'перекус');
@@ -383,7 +385,7 @@
       cb.addEventListener('change', (e) => {
         const id = e.target.id;
         mealState[id] = e.target.checked;
-        localStorage.setItem('app_meals_v3', JSON.stringify(mealState));
+        localStorage.setItem('app_meals_v4', JSON.stringify(mealState));
         document.getElementById('wrap-' + id).classList.toggle('done', e.target.checked);
         updateStats();
       });
@@ -441,7 +443,7 @@
       cb.addEventListener('change', (e) => {
         const id = e.target.id;
         shopState[id] = e.target.checked;
-        localStorage.setItem('app_shops_v3', JSON.stringify(shopState));
+        localStorage.setItem('app_shops_v4', JSON.stringify(shopState));
         document.getElementById('wrap-' + id).classList.toggle('done', e.target.checked);
         updateStats();
       });
@@ -496,7 +498,7 @@
   }
 
   function saveAndRenderAll() {
-    localStorage.setItem('app_week_menu_v3', JSON.stringify(currentWeek));
+    localStorage.setItem('app_week_menu_v4', JSON.stringify(currentWeek));
     renderMenu();
     renderShoppingList();
   }
@@ -512,7 +514,7 @@
   document.getElementById('resetShop').addEventListener('click', () => {
     if(!confirm('Снять все галочки с продуктов?')) return;
     shopState = {};
-    localStorage.removeItem('app_shops_v3');
+    localStorage.removeItem('app_shops_v4');
     renderShoppingList();
   });
 
