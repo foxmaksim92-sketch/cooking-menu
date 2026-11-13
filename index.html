@@ -156,7 +156,7 @@
   .recipe-card {
     background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-top: 4px solid #6ab04c;
   }
-  .recipe-card.kid-recipe { border-top-color: #ff9f43; } /* Оранжевый акцент для детских */
+  .recipe-card.kid-recipe { border-top-color: #ff9f43; }
   .recipe-card h3 { font-size: 1.05rem; margin-bottom: 12px; color: #4a90d9; display: flex; justify-content: space-between; }
   .recipe-card.kid-recipe h3 { color: #e67e22; }
   .badge { font-size: 0.7rem; background: #ff9f43; color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: normal; }
@@ -236,34 +236,11 @@
 
 </div>
 
-<script>
-  // ---------- БАЗА РЕЦЕПТОВ ----------
-  const recipeDB = [
-    // ВЗРОСЛЫЕ ОБЕДЫ / УЖИНЫ
-    { id: "kotleti", name: "Котлеты с пюре", category: "adult", type: "обед", ingredients: ["Фарш 600г", "Лук 1шт", "Яйцо 1шт", "Хлеб 2ломтя", "Молоко 100мл", "Картофель 800г", "Масло сливочное 30г"], steps: ["Хлеб замочить в молоке.", "Смешать фарш, лук, яйцо, хлеб.", "Обжарить, потушить 10 мин.", "Картофель отварить и размять."] },
-    { id: "tefteli", name: "Тефтели с рисом", category: "adult", type: "обед", ingredients: ["Фарш 600г", "Рис 100г", "Лук 1шт", "Яйцо 1шт", "Томатная паста 2ст.л", "Сметана 3ст.л"], steps: ["Рис отварить до полуготовности.", "Смешать с фаршем.", "Залить соусом и тушить 25 мин."] },
-    { id: "gulyash", name: "Гуляш с гречкой", category: "adult", type: "обед", ingredients: ["Говядина 700г", "Лук 1шт", "Морковь 1шт", "Томатная паста 2ст.л", "Мука 1ст.л", "Сметана 2ст.л", "Гречка 250г"], steps: ["Мясо обжарить.", "Добавить лук, морковь, пасту, воду. Тушить 45 мин.", "Гречку отварить."] },
-    { id: "pasta_flotski", name: "Макароны по-флотски", category: "adult", type: "обед", ingredients: ["Макароны 400г", "Фарш 500г", "Лук 1шт"], steps: ["Отварить макароны.", "Обжарить фарш с луком.", "Смешать."] },
-    { id: "riba", name: "Запечённая рыба с картофелем", category: "adult", type: "ужин", ingredients: ["Рыба 700г", "Картофель 800г", "Лук 1шт", "Морковь 1шт", "Сметана 3ст.л"], steps: ["Картофель запекать 20 мин при 200C.", "Рыбу смазать сметаной, добавить овощи.", "Запекать еще 20 мин."] },
-    { id: "kurica_tushenaya", name: "Тушёная курица с картофелем", category: "adult", type: "ужин", ingredients: ["Курица 700г", "Картофель 500г", "Лук 1шт", "Морковь 1шт", "Томатная паста 1ст.л"], steps: ["Курицу обжарить.", "Добавить овощи.", "Тушить 30-40 мин."] },
-    { id: "shangi", name: "Шаньги с картофелем", category: "adult", type: "обед", ingredients: ["Мука 500г", "Молоко 250мл", "Дрожжи 7г", "Сахар 1ст.л", "Яйцо 1шт", "Масло сливочное 50г", "Картофель 800г", "Сметана 3ст.л"], steps: ["Замесить тесто.", "Сделать пюре.", "Раскатать, выложить пюре.", "Выпекать при 200C 15-20 мин."] },
-    { id: "kotlety_grachka", name: "Котлеты с гречкой", category: "adult", type: "ужин", ingredients: ["Фарш 500г", "Лук 1шт", "Яйцо 1шт", "Гречка 200г"], steps: ["Сделать фарш.", "Обжарить.", "Отварить гречку."] },
-    
-    // ДЕТСКИЕ РЕЦЕПТЫ (2 года)
-    { id: "kid_parovye_tefteli", name: "Паровые тефтельки из индейки", category: "kid", type: "обед", ingredients: ["Фарш индейки 300г", "Рис 50г", "Лук 0.5шт", "Яйцо 0.5шт"], steps: ["Рис отварить до готовности.", "Смешать с фаршем, луком и яйцом.", "Скатать шарики и готовить на пару 20-25 минут."] },
-    { id: "kid_kurinye_ezhiki", name: "Куриные ёжики с рисом", category: "kid", type: "ужин", ingredients: ["Фарш куриный 300г", "Рис 60г", "Лук 0.5шт", "Морковь 0.5шт", "Сметана 2ст.л"], steps: ["Рис отварить до полуготовности.", "Смешать с фаршем и луком.", "Сформировать шарики, выложить в форму.", "Залить сметаной с водой и тушить 25 мин."] },
-    { id: "kid_ovoshnoe_ragu", name: "Овощное рагу с кроликом", category: "kid", type: "обед", ingredients: ["Кролик 300г", "Картофель 3шт", "Морковь 1шт", "Кабачок 1шт", "Лук 0.5шт"], steps: ["Мясо отварить до полуготовности.", "Добавить нарезанные овощи.", "Тушить до мягкости 20-30 минут."] },
-    { id: "kid_zapekanka", name: "Творожная запеканка", category: "kid", type: "перекус", ingredients: ["Творог 400г", "Яйцо 1шт", "Манка 2ст.л", "Сахар 1ст.л", "Молоко 50мл"], steps: ["Смешать все ингредиенты.", "Выложить в форму.", "Запекать при 180C 30 минут."] },
-    { id: "kid_kartofel_pure", name: "Картофельное пюре с котлеткой", category: "kid", type: "ужин", ingredients: ["Фарш 300г", "Картофель 4шт", "Молоко 100мл", "Масло сливочное 20г"], steps: ["Сделать паровые котлеты.", "Картофель отварить и размять с молоком и маслом."] },
-    { id: "kid_sup_pure", name: "Суп-пюре из тыквы", category: "kid", type: "обед", ingredients: ["Тыква 300г", "Картофель 2шт", "Морковь 1шт", "Молоко 100мл", "Масло сливочное 10г"], steps: ["Овощи отварить до мягкости.", "Пробить блендером (или размять).", "Добавить молоко и масло, довести до кипения."] },
-    { id: "kid_frikadelki", name: "Фрикадельки в бульоне", category: "kid", type: "обед", ingredients: ["Фарш 300г", "Рис 50г", "Морковь 1шт", "Картофель 2шт", "Лук 0.5шт"], steps: ["Сформировать фрикадельки.", "Сварить овощной бульон.", "Добавить фрикадельки и варить 15 минут."] },
-    { id: "kid_omlet", name: "Омлет с овощами (на пару)", category: "kid", type: "ужин", ingredients: ["Яйца 2шт", "Молоко 50мл", "Кабачок 0.5шт", "Масло сливочное 5г"], steps: ["Кабачок натереть.", "Взбить яйца с молоком.", "Смешать и готовить на пару 10 минут."] },
-    
-    // ПЕРЕКУСЫ (Общие)
-    { id: "frukti", name: "Фрукты", category: "adult", type: "перекус", ingredients: ["Яблоки 1кг", "Бананы 1кг"], steps: ["Нарезать и подать."] },
-    { id: "kid_frukti", name: "Фрукты и детский йогурт", category: "kid", type: "перекус", ingredients: ["Яблоки 1кг", "Бананы 1кг", "Йогурт детский 4шт"], steps: ["Нарезать фрукты, подать с йогуртом."] }
-  ];
+<!-- Подключаем внешнюю базу рецептов -->
+<script src="recipes.js"></script>
 
+<script>
+  // ---------- НАСТРОЙКИ НЕДЕЛИ ПО УМОЛЧАНИЮ ----------
   const defaultWeek = {
     adult: {
       "Понедельник": { "Обед": "kotleti", "Ужин": "gulyash", "Перекус": "frukti" },
@@ -277,10 +254,10 @@
     kid: {
       "Понедельник": { "Обед": "kid_parovye_tefteli", "Ужин": "kid_kartofel_pure", "Перекус": "kid_frukti" },
       "Вторник": { "Обед": "kid_sup_pure", "Ужин": "kid_kurinye_ezhiki", "Перекус": "kid_frukti" },
-      "Среда": { "Обед": "kid_frikadelki", "Ужин": "kid_omlet", "Перекус": "kid_frukti" },
-      "Четверг": { "Обед": "kid_ovoshnoe_ragu", "Ужин": "kid_parovye_tefteli", "Перекус": "kid_zapekanka" },
+      "Среда": { "Обед": "kid_frikadelki", "Ужин": "kid_omlet", "Перекус": "kid_zapekanka" },
+      "Четверг": { "Обед": "kid_ovoshnoe_ragu", "Ужин": "kid_parovye_tefteli", "Перекус": "kid_frukti" },
       "Пятница": { "Обед": "kid_sup_pure", "Ужин": "kid_kartofel_pure", "Перекус": "kid_frukti" },
-      "Суббота": { "Обед": "kid_frivadelki", "Ужин": "kid_kurinye_ezhiki", "Перекус": "kid_zapekanka" },
+      "Суббота": { "Обед": "kid_frikadelki", "Ужин": "kid_kurinye_ezhiki", "Перекус": "kid_zapekanka" },
       "Воскресенье": { "Обед": "kid_ovoshnoe_ragu", "Ужин": "kid_omlet", "Перекус": "kid_frukti" }
     }
   };
@@ -289,11 +266,12 @@
   const mealTypes = ["Обед", "Ужин", "Перекус"];
 
   // Состояние
-  let currentWeek = JSON.parse(localStorage.getItem('app_week_menu_v2')) || JSON.parse(JSON.stringify(defaultWeek));
-  let shopState = JSON.parse(localStorage.getItem('app_shops_v2')) || {};
-  let mealState = JSON.parse(localStorage.getItem('app_meals_v2')) || {};
+  let currentWeek = JSON.parse(localStorage.getItem('app_week_menu_v3')) || JSON.parse(JSON.stringify(defaultWeek));
+  let shopState = JSON.parse(localStorage.getItem('app_shops_v3')) || {};
+  let mealState = JSON.parse(localStorage.getItem('app_meals_v3')) || {};
 
   function getRecipeById(id) {
+    // Ищем в базе данных из recipes.js
     return recipeDB.find(r => r.id === id) || { name: "Не выбрано", ingredients: [], steps: [] };
   }
 
@@ -361,7 +339,7 @@
     });
   }
 
-  // ---------- МЕНЮ (С ЧЕКБОКСАМИ) ----------
+  // ---------- МЕНЮ ----------
   function renderMenu() {
     const daysEl = document.getElementById('days');
     daysEl.innerHTML = '';
@@ -405,7 +383,7 @@
       cb.addEventListener('change', (e) => {
         const id = e.target.id;
         mealState[id] = e.target.checked;
-        localStorage.setItem('app_meals_v2', JSON.stringify(mealState));
+        localStorage.setItem('app_meals_v3', JSON.stringify(mealState));
         document.getElementById('wrap-' + id).classList.toggle('done', e.target.checked);
         updateStats();
       });
@@ -416,7 +394,6 @@
   function renderShoppingList() {
     const ingMap = {}; 
 
-    // Собираем из обоих меню
     ['adult', 'kid'].forEach(type => {
       daysOfWeek.forEach(day => {
         mealTypes.forEach(meal => {
@@ -464,7 +441,7 @@
       cb.addEventListener('change', (e) => {
         const id = e.target.id;
         shopState[id] = e.target.checked;
-        localStorage.setItem('app_shops_v2', JSON.stringify(shopState));
+        localStorage.setItem('app_shops_v3', JSON.stringify(shopState));
         document.getElementById('wrap-' + id).classList.toggle('done', e.target.checked);
         updateStats();
       });
@@ -519,7 +496,7 @@
   }
 
   function saveAndRenderAll() {
-    localStorage.setItem('app_week_menu_v2', JSON.stringify(currentWeek));
+    localStorage.setItem('app_week_menu_v3', JSON.stringify(currentWeek));
     renderMenu();
     renderShoppingList();
   }
@@ -535,7 +512,7 @@
   document.getElementById('resetShop').addEventListener('click', () => {
     if(!confirm('Снять все галочки с продуктов?')) return;
     shopState = {};
-    localStorage.removeItem('app_shops_v2');
+    localStorage.removeItem('app_shops_v3');
     renderShoppingList();
   });
 
