@@ -1,0 +1,20 @@
+{
+  "name": "Меню на неделю",
+  "short_name": "Меню",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f0f4f8",
+  "theme_color": "#4a90d9",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192/4a90d9/ffffff?text=🍲",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512/4a90d9/ffffff?text=🍲",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
