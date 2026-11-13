@@ -92,17 +92,26 @@
     gap: 8px;
   }
   .builder-row h4 { color: #1a2b3c; font-size: 1rem; margin-bottom: 4px; border-bottom: 1px solid #eef2f6; padding-bottom: 4px; }
-  .builder-row select {
+  
+  .select-group { display: flex; flex-direction: column; gap: 4px; }
+  .select-group label { font-size: 0.75rem; color: #6b7c8f; font-weight: 600; margin-bottom: 2px; }
+  .select-group select {
     width: 100%;
     padding: 10px;
     border: 1px solid #d6dee6;
     border-radius: 8px;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     background: #f8fafc;
     color: #1a2b3c;
     outline: none;
+    transition: all 0.2s;
   }
-  .builder-row label { font-size: 0.8rem; color: #6b7c8f; font-weight: 600; margin-bottom: 4px; display: block; }
+  .select-group select.favorite-selected {
+    background: #fff9e6;
+    border-color: #f1c40f;
+    font-weight: 600;
+    color: #b78300;
+  }
 
   /* Меню */
   .days { display: grid; grid-template-columns: 1fr; gap: 12px; }
@@ -154,12 +163,28 @@
   /* Рецепты */
   .recipes-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
   .recipe-card {
-    background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-top: 4px solid #6ab04c;
+    background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-top: 4px solid #6ab04c; position: relative;
   }
   .recipe-card.kid-recipe { border-top-color: #ff9f43; }
-  .recipe-card h3 { font-size: 1.05rem; margin-bottom: 12px; color: #4a90d9; display: flex; justify-content: space-between; }
+  .recipe-card h3 { font-size: 1.05rem; margin-bottom: 12px; color: #4a90d9; display: flex; justify-content: space-between; align-items: flex-start; padding-right: 40px; }
   .recipe-card.kid-recipe h3 { color: #e67e22; }
   .badge { font-size: 0.7rem; background: #ff9f43; color: #fff; padding: 2px 6px; border-radius: 4px; font-weight: normal; }
+  
+  .fav-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #d6dee6;
+    transition: transform 0.2s, color 0.2s;
+    padding: 4px;
+  }
+  .fav-btn:hover { transform: scale(1.1); }
+  .fav-btn.active { color: #f1c40f; }
+
   .recipe-card .ingredients { background: #f8fafc; padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 12px; border-left: 3px solid #6ab04c; }
   .recipe-card.kid-recipe .ingredients { border-left-color: #ff9f43; }
   .recipe-card .ingredients b { display: block; margin-bottom: 4px; color: #1a2b3c; }
@@ -179,7 +204,7 @@
 
   <header>
     <h1>🍲 Семейное меню</h1>
-    <p>100 рецептов · Взрослое и детское меню · Без супов, капусты и перца</p>
+    <p>Взрослое и детское меню · Избранное</p>
   </header>
 
   <div class="stats">
@@ -199,7 +224,7 @@
   <!-- КОНСТРУКТОР -->
   <div class="panel active" id="panel-builder">
     <div style="margin-bottom: 16px; font-size: 0.9rem; color: #6b7c8f; background:#fff; padding:12px; border-radius:8px;">
-      Выберите блюда для взрослых и отдельно для ребёнка. Список покупок объединит все ингредиенты.
+      Выбирайте блюда. Избранные рецепты (⭐) подсвечены желтым для быстрого доступа.
     </div>
     
     <div class="builder-section-title">👨‍👩‍👦 Взрослое меню</div>
@@ -236,12 +261,10 @@
 
 </div>
 
-<!-- Подключаем внешнюю базу рецептов -->
+<!-- База рецептов -->
 <script src="recipes.js"></script>
 
 <script>
-  // ---------- НАСТРОЙКИ НЕДЕЛИ ПО УМОЛЧАНИЮ ----------
-  // Используем новые ID из обновленной базы (с префиксами a_ и k_)
   const defaultWeek = {
     adult: {
       "Понедельник": { "Обед": "a_kotleti", "Ужин": "a_gulyash", "Перекус": "a_frukti" },
@@ -266,13 +289,12 @@
   const daysOfWeek = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
   const mealTypes = ["Обед", "Ужин", "Перекус"];
 
-  // Состояние
   let currentWeek = JSON.parse(localStorage.getItem('app_week_menu_v4')) || JSON.parse(JSON.stringify(defaultWeek));
   let shopState = JSON.parse(localStorage.getItem('app_shops_v4')) || {};
   let mealState = JSON.parse(localStorage.getItem('app_meals_v4')) || {};
+  let favorites = JSON.parse(localStorage.getItem('app_favorites')) || []; // Массив ID избранных рецептов
 
   function getRecipeById(id) {
-    // Ищем в базе данных из recipes.js
     return recipeDB.find(r => r.id === id) || { name: "Не выбрано", ingredients: [], steps: [] };
   }
 
@@ -284,58 +306,94 @@
     buildKid.innerHTML = '';
 
     daysOfWeek.forEach(day => {
-      // Взрослый ряд
+      // --- Взрослое меню ---
       const rowAdult = document.createElement('div');
       rowAdult.className = 'builder-row';
       let htmlAdult = `<h4>${day}</h4>`;
       
       mealTypes.forEach(meal => {
         const selectedId = currentWeek.adult[day][meal];
-        let options = recipeDB.filter(r => r.category === 'adult');
-        // Фильтрация по типу блюда (обед/ужин/перекус)
-        if (meal === 'Обед') options = options.filter(r => r.type === 'обед' || r.type === 'ужин');
-        else if (meal === 'Ужин') options = options.filter(r => r.type === 'ужин' || r.type === 'обед');
-        else options = options.filter(r => r.type === 'перекус');
+        let allOptions = recipeDB.filter(r => r.category === 'adult');
+        
+        // Фильтрация по приёму пищи
+        if (meal === 'Обед') allOptions = allOptions.filter(r => r.type === 'обед' || r.type === 'ужин');
+        else if (meal === 'Ужин') allOptions = allOptions.filter(r => r.type === 'ужин' || r.type === 'обед');
+        else allOptions = allOptions.filter(r => r.type === 'перекус');
 
-        let selectHtml = `<div><label>${meal}</label><select data-type="adult" data-day="${day}" data-meal="${meal}">`;
-        options.forEach(opt => {
-          selectHtml += `<option value="${opt.id}" ${opt.id === selectedId ? 'selected' : ''}>${opt.name}</option>`;
-        });
-        selectHtml += `</select></div>`;
+        // Разделяем на избранное и остальное
+        const favOptions = allOptions.filter(r => favorites.includes(r.id));
+        const otherOptions = allOptions.filter(r => !favorites.includes(r.id));
+        
+        // Проверяем, выбран ли избранный рецепт
+        const isFavSelected = favorites.includes(selectedId) ? 'favorite-selected' : '';
+
+        let selectHtml = `<div class="select-group">
+          <label>${meal}</label>
+          <select data-type="adult" data-day="${day}" data-meal="${meal}" class="${isFavSelected}">
+            ${favOptions.length > 0 ? `<optgroup label="⭐ Избранное">` : ''}
+            ${favOptions.map(opt => `<option value="${opt.id}" ${opt.id === selectedId ? 'selected' : ''}>${opt.name}</option>`).join('')}
+            ${favOptions.length > 0 ? `</optgroup>` : ''}
+            
+            <optgroup label="Все рецепты">
+              ${otherOptions.map(opt => `<option value="${opt.id}" ${opt.id === selectedId ? 'selected' : ''}>${opt.name}</option>`).join('')}
+            </optgroup>
+          </select>
+        </div>`;
         htmlAdult += selectHtml;
       });
       rowAdult.innerHTML = htmlAdult;
       buildAdult.appendChild(rowAdult);
 
-      // Детский ряд
+      // --- Детское меню ---
       const rowKid = document.createElement('div');
       rowKid.className = 'builder-row';
       let htmlKid = `<h4>${day}</h4>`;
       
       mealTypes.forEach(meal => {
         const selectedId = currentWeek.kid[day][meal];
-        let options = recipeDB.filter(r => r.category === 'kid');
-        if (meal === 'Обед') options = options.filter(r => r.type === 'обед' || r.type === 'ужин');
-        else if (meal === 'Ужин') options = options.filter(r => r.type === 'ужин' || r.type === 'обед');
-        else options = options.filter(r => r.type === 'перекус');
+        let allOptions = recipeDB.filter(r => r.category === 'kid');
+        
+        if (meal === 'Обед') allOptions = allOptions.filter(r => r.type === 'обед' || r.type === 'ужин');
+        else if (meal === 'Ужин') allOptions = allOptions.filter(r => r.type === 'ужин' || r.type === 'обед');
+        else allOptions = allOptions.filter(r => r.type === 'перекус');
 
-        let selectHtml = `<div><label>${meal}</label><select data-type="kid" data-day="${day}" data-meal="${meal}">`;
-        options.forEach(opt => {
-          selectHtml += `<option value="${opt.id}" ${opt.id === selectedId ? 'selected' : ''}>${opt.name}</option>`;
-        });
-        selectHtml += `</select></div>`;
+        const favOptions = allOptions.filter(r => favorites.includes(r.id));
+        const otherOptions = allOptions.filter(r => !favorites.includes(r.id));
+        const isFavSelected = favorites.includes(selectedId) ? 'favorite-selected' : '';
+
+        let selectHtml = `<div class="select-group">
+          <label>${meal}</label>
+          <select data-type="kid" data-day="${day}" data-meal="${meal}" class="${isFavSelected}">
+            ${favOptions.length > 0 ? `<optgroup label="⭐ Избранное">` : ''}
+            ${favOptions.map(opt => `<option value="${opt.id}" ${opt.id === selectedId ? 'selected' : ''}>${opt.name}</option>`).join('')}
+            ${favOptions.length > 0 ? `</optgroup>` : ''}
+            
+            <optgroup label="Все рецепты">
+              ${otherOptions.map(opt => `<option value="${opt.id}" ${opt.id === selectedId ? 'selected' : ''}>${opt.name}</option>`).join('')}
+            </optgroup>
+          </select>
+        </div>`;
         htmlKid += selectHtml;
       });
       rowKid.innerHTML = htmlKid;
       buildKid.appendChild(rowKid);
     });
 
+    // Обработчики изменения
     document.querySelectorAll('.builder-row select').forEach(sel => {
       sel.addEventListener('change', (e) => {
         const type = e.target.dataset.type;
         const day = e.target.dataset.day;
         const meal = e.target.dataset.meal;
         currentWeek[type][day][meal] = e.target.value;
+        
+        // Подсветка при выборе из избранного
+        if (favorites.includes(e.target.value)) {
+          e.target.classList.add('favorite-selected');
+        } else {
+          e.target.classList.remove('favorite-selected');
+        }
+        
         saveAndRenderAll();
       });
     });
@@ -417,7 +475,7 @@
     
     const catCard = document.createElement('div');
     catCard.className = 'shop-cat';
-    catCard.innerHTML = `<h3>Общий список продуктов (взрослые + ребёнок)</h3>`;
+    catCard.innerHTML = `<h3>Общий список продуктов</h3>`;
     
     sortedNames.forEach(name => {
       const qtys = Array.from(ingMap[name]).join(', ');
@@ -450,7 +508,7 @@
     });
   }
 
-  // ---------- РЕЦЕПТЫ ----------
+  // ---------- РЕЦЕПТЫ С ИЗБРАННЫМ ----------
   function renderRecipes() {
     const recipesEl = document.getElementById('recipes');
     recipesEl.innerHTML = '';
@@ -460,11 +518,13 @@
       card.className = 'recipe-card';
       if (recipe.category === 'kid') card.classList.add('kid-recipe');
       
+      const isFav = favorites.includes(recipe.id);
       let stepsHtml = recipe.steps.map(step => `<li>${step}</li>`).join('');
       let ingHtml = recipe.ingredients.join(', ');
       let badge = recipe.category === 'kid' ? `<span class="badge">Для ребёнка</span>` : '';
       
       card.innerHTML = `
+        <button class="fav-btn ${isFav ? 'active' : ''}" data-id="${recipe.id}" title="В избранное">★</button>
         <h3>${recipe.name} ${badge}</h3>
         <div class="ingredients">
           <b>Ингредиенты:</b> ${ingHtml}
@@ -473,7 +533,24 @@
       `;
       recipesEl.appendChild(card);
     });
+
     document.getElementById('statRecipes').textContent = recipeDB.length;
+
+    // Обработчик клика по звездочке
+    document.querySelectorAll('.fav-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = e.target.dataset.id;
+        if (favorites.includes(id)) {
+          favorites = favorites.filter(favId => favId !== id); // Удалить
+          e.target.classList.remove('active');
+        } else {
+          favorites.push(id); // Добавить
+          e.target.classList.add('active');
+        }
+        localStorage.setItem('app_favorites', JSON.stringify(favorites));
+        renderBuilder(); // Перерисовываем селекты с новым избранным
+      });
+    });
   }
 
   // ---------- СТАТИСТИКА ----------
@@ -505,7 +582,7 @@
 
   // ---------- СБРОС ----------
   document.getElementById('resetWeekBtn').addEventListener('click', () => {
-    if(!confirm('Вернуть стандартное меню для взрослых и детей?')) return;
+    if(!confirm('Вернуть стандартное меню?')) return;
     currentWeek = JSON.parse(JSON.stringify(defaultWeek));
     saveAndRenderAll();
     renderBuilder();
