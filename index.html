@@ -214,30 +214,16 @@
     <div class="stat-card"><div class="num" id="statRecipes">0</div><div class="label">рецептов в базе</div></div>
   </div>
 
+  <!-- Переставили вкладки: Меню - Покупки - Конструктор - Рецепты -->
   <div class="tabs">
-    <button class="tab active" data-panel="builder">🛠 Конструктор</button>
-    <button class="tab" data-panel="menu">📅 Меню</button>
+    <button class="tab active" data-panel="menu">📅 Меню</button>
     <button class="tab" data-panel="shopping">🛒 Покупки</button>
+    <button class="tab" data-panel="builder">🛠 Конструктор</button>
     <button class="tab" data-panel="recipes">📖 Рецепты</button>
   </div>
 
-  <!-- КОНСТРУКТОР -->
-  <div class="panel active" id="panel-builder">
-    <div style="margin-bottom: 16px; font-size: 0.9rem; color: #6b7c8f; background:#fff; padding:12px; border-radius:8px;">
-      Выбирайте блюда. Избранные рецепты (⭐) подсвечены желтым для быстрого доступа.
-    </div>
-    
-    <div class="builder-section-title">👨‍👩‍👦 Взрослое меню</div>
-    <div id="builder-adult"></div>
-
-    <div class="builder-section-title" style="margin-top: 30px; color: #e67e22; border-bottom-color: #ff9f43;">👶 Детское меню (2 года)</div>
-    <div id="builder-kid"></div>
-
-    <button class="action-btn danger" id="resetWeekBtn" style="margin-top: 20px;">🔄 Вернуть меню по умолчанию</button>
-  </div>
-
-  <!-- МЕНЮ -->
-  <div class="panel" id="panel-menu">
+  <!-- МЕНЮ (Теперь открывается первым) -->
+  <div class="panel active" id="panel-menu">
     <div class="days" id="days"></div>
   </div>
 
@@ -252,6 +238,21 @@
       <button class="action-btn" id="resetShop">Снять все галочки с продуктов</button>
     </div>
     <div class="shop-grid" id="shopping"></div>
+  </div>
+
+  <!-- КОНСТРУКТОР -->
+  <div class="panel" id="panel-builder">
+    <div style="margin-bottom: 16px; font-size: 0.9rem; color: #6b7c8f; background:#fff; padding:12px; border-radius:8px;">
+      Выбирайте блюда. Избранные рецепты (⭐) подсвечены желтым для быстрого доступа.
+    </div>
+    
+    <div class="builder-section-title">👨‍👩‍👦 Взрослое меню</div>
+    <div id="builder-adult"></div>
+
+    <div class="builder-section-title" style="margin-top: 30px; color: #e67e22; border-bottom-color: #ff9f43;">👶 Детское меню (2 года)</div>
+    <div id="builder-kid"></div>
+
+    <button class="action-btn danger" id="resetWeekBtn" style="margin-top: 20px;">🔄 Вернуть меню по умолчанию</button>
   </div>
 
   <!-- РЕЦЕПТЫ -->
@@ -292,7 +293,7 @@
   let currentWeek = JSON.parse(localStorage.getItem('app_week_menu_v4')) || JSON.parse(JSON.stringify(defaultWeek));
   let shopState = JSON.parse(localStorage.getItem('app_shops_v4')) || {};
   let mealState = JSON.parse(localStorage.getItem('app_meals_v4')) || {};
-  let favorites = JSON.parse(localStorage.getItem('app_favorites')) || []; // Массив ID избранных рецептов
+  let favorites = JSON.parse(localStorage.getItem('app_favorites')) || []; 
 
   function getRecipeById(id) {
     return recipeDB.find(r => r.id === id) || { name: "Не выбрано", ingredients: [], steps: [] };
@@ -306,7 +307,6 @@
     buildKid.innerHTML = '';
 
     daysOfWeek.forEach(day => {
-      // --- Взрослое меню ---
       const rowAdult = document.createElement('div');
       rowAdult.className = 'builder-row';
       let htmlAdult = `<h4>${day}</h4>`;
@@ -315,16 +315,12 @@
         const selectedId = currentWeek.adult[day][meal];
         let allOptions = recipeDB.filter(r => r.category === 'adult');
         
-        // Фильтрация по приёму пищи
         if (meal === 'Обед') allOptions = allOptions.filter(r => r.type === 'обед' || r.type === 'ужин');
         else if (meal === 'Ужин') allOptions = allOptions.filter(r => r.type === 'ужин' || r.type === 'обед');
         else allOptions = allOptions.filter(r => r.type === 'перекус');
 
-        // Разделяем на избранное и остальное
         const favOptions = allOptions.filter(r => favorites.includes(r.id));
         const otherOptions = allOptions.filter(r => !favorites.includes(r.id));
-        
-        // Проверяем, выбран ли избранный рецепт
         const isFavSelected = favorites.includes(selectedId) ? 'favorite-selected' : '';
 
         let selectHtml = `<div class="select-group">
@@ -344,7 +340,6 @@
       rowAdult.innerHTML = htmlAdult;
       buildAdult.appendChild(rowAdult);
 
-      // --- Детское меню ---
       const rowKid = document.createElement('div');
       rowKid.className = 'builder-row';
       let htmlKid = `<h4>${day}</h4>`;
@@ -379,7 +374,6 @@
       buildKid.appendChild(rowKid);
     });
 
-    // Обработчики изменения
     document.querySelectorAll('.builder-row select').forEach(sel => {
       sel.addEventListener('change', (e) => {
         const type = e.target.dataset.type;
@@ -387,7 +381,6 @@
         const meal = e.target.dataset.meal;
         currentWeek[type][day][meal] = e.target.value;
         
-        // Подсветка при выборе из избранного
         if (favorites.includes(e.target.value)) {
           e.target.classList.add('favorite-selected');
         } else {
@@ -409,7 +402,6 @@
       card.className = 'day-card';
       let html = `<h3>${day}</h3>`;
       
-      // Взрослое
       html += `<div class="meal-group"><div class="meal-group-title">Взрослые</div>`;
       mealTypes.forEach((meal, mi) => {
         const recipe = getRecipeById(currentWeek.adult[day][meal]);
@@ -422,7 +414,6 @@
       });
       html += `</div>`;
 
-      // Детское
       html += `<div class="meal-group"><div class="meal-group-title" style="color:#e67e22;">Ребёнок</div>`;
       mealTypes.forEach((meal, mi) => {
         const recipe = getRecipeById(currentWeek.kid[day][meal]);
@@ -508,7 +499,7 @@
     });
   }
 
-  // ---------- РЕЦЕПТЫ С ИЗБРАННЫМ ----------
+  // ---------- РЕЦЕПТЫ ----------
   function renderRecipes() {
     const recipesEl = document.getElementById('recipes');
     recipesEl.innerHTML = '';
@@ -536,19 +527,18 @@
 
     document.getElementById('statRecipes').textContent = recipeDB.length;
 
-    // Обработчик клика по звездочке
     document.querySelectorAll('.fav-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const id = e.target.dataset.id;
         if (favorites.includes(id)) {
-          favorites = favorites.filter(favId => favId !== id); // Удалить
+          favorites = favorites.filter(favId => favId !== id);
           e.target.classList.remove('active');
         } else {
-          favorites.push(id); // Добавить
+          favorites.push(id);
           e.target.classList.add('active');
         }
         localStorage.setItem('app_favorites', JSON.stringify(favorites));
-        renderBuilder(); // Перерисовываем селекты с новым избранным
+        renderBuilder(); 
       });
     });
   }
